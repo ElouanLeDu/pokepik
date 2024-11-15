@@ -1,3 +1,3 @@
-print(ypuhpuuuuu)
+print(yihiii)
 
 print(1)
