@@ -10,6 +10,9 @@ import matplotlib.pyplot as pyplt
 # Début du programme :
 # Aucune fonction n'a de renvoi. C'etait plus simple pour la construction du programme, bien que cela soit un peu inutile
 
+
+class pokemon():
+
 class Pokemorpion():
     def __init__(self):
         self.score1 = 0
@@ -157,3 +160,6 @@ class Pokemorpion():
 
 P = Pokemorpion()
 P.menu()
+
+
+#test
