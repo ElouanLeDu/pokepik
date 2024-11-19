@@ -45,32 +45,27 @@ class Morpion:
     def start(self):
         self.afficher_morpion()
         j = "red"
+        prochain_coup = None
         while not self.fin:
             clic = self.g.recupererClic()
             if clic :
                 try :
                     objet = self.g.recupererObjet(clic.x, clic.y)
                     if objet in self.dic_asso and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0 :
-                        self.g.changerCouleur(objet, j)
-                        if j == "red" :
-                            self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = 1
-                        elif j == "blue" :
-                            self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = 2
+                        if not prochain_coup or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
+                            self.g.changerCouleur(objet, j)
+                            if j == "red":
+                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][
+                                    self.dic_asso[objet][3]] = 1
+                                j = "blue"
+                            elif j == "blue":
+                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][
+                                    self.dic_asso[objet][3]] = 2
+                                j = "red"
+                            prochain_coup = (self.dic_asso[objet][2], self.dic_asso[objet][3])
+
                 except :
                     continue
-
-
-    #
-    # def select_obj(self):
-    #     clic = self.g.attendreClic()
-    #     if clic :
-    #         objet = self.g.recupererObjet(clic.x,clic.y)
-    #         self.g.changerCouleur(objet,"red")
-
-
-
-
-
 
 
 
