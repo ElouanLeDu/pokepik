@@ -115,6 +115,46 @@ class Morpion:
 
 
 
+
+
+    def eval_petit(self,mat):
+        #le joueur est représenté par des -1 sur la mat et l'ia par des 1
+        evaluation = 0
+        # score = matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes 0)
+        for y in range(3) :
+            for x in range(3) :
+                evaluation += mat[x][y] * score[x][y]
+
+        win_comb = [((0,0),(0,1),(0,2)),((1,0),(1,1),(1,2)),((2,0),(2,1),(2,2)),#lignes
+                    ((0,0),(1,0),(2,0)),((0,1),(1,1),(2,1)),((0,2),(1,2),(2,2)),#colonnes
+                    ((0,0),(1,1),(2,2)),((2,0),(1,1),(0,2))]#diagonales
+
+        for i,j,k in win_comb :
+            if mat[i[0]][i[1]] + mat[j[0]][j[1]] + mat[k[0]][k[1]] == 2 :   #l'ia domine elle a deux 1 consecutifs
+                evaluation += "score a décider"
+            if mat[i[0]][i[1]] + mat[j[0]][j[1]] + mat[k[0]][k[1]] == -2 :  #le joueur domine elle a deux 1 consecutifs
+                evaluation -= "score a decider"
+            if mat[i[0]][i[1]] + mat[j[0]][j[1]] + mat[k[0]][k[1]] == 3 :   #l'ia peut gagner pour sur
+                evaluation += "score a décider    ++"
+            if mat[i[0]][i[1]] + mat[j[0]][j[1]] + mat[k[0]][k[1]] == -3 :  #le joueur peut gagner pour sur
+                evaluation -= "score a decider    ++"
+
+        return evaluation
+
+
+    def eval_grand(self,pos_actuelle):
+        # score = matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes 0)
+        for y in range(3):
+            for x in range(3):
+                evaluation += self.eval_petit(self.mat[x][y]) * score[x][y]
+                if self.mat[x][y] == pos_actuelle :
+                    evaluation += self.eval_petit(self.mat[x][y]) * score[x][y]
+
+
+
+
+
+
 g = ouvrirFenetre(1200,600)
 jeu = Morpion(g)
 # jeu.afficher_morpion()
