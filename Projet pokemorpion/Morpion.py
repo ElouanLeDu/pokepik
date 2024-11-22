@@ -11,6 +11,7 @@ class Morpion:
         # self.dic_poke = {}
         self.dic_asso = {}
         self.fin = False
+        self.dico_surbrillance={}
         self.centre = [
             (600, 300,(1,1)), (600, 150,(1,0)), (600, 450,(1,2)),
             (450, 300,(0,1)), (450, 150,(0,0)), (450, 450,(0,2)),
@@ -36,7 +37,13 @@ class Morpion:
             self.g.dessinerLigne(x[0] - 67.5, x[1] + 22.5, x[0] + 67.5, x[1] + 22.5, "white")
             self.g.dessinerLigne(x[0] - 67.5, x[1] - 22.5, x[0] + 67.5, x[1] - 22.5, "white")
 
+
+
     def afficher_morpion(self):
+        for x in range(3):
+            for y in range(3):
+                self.dico_surbrillance[(x,y)]=self.g.dessinerRectangle(375 + x * 150 + 1, 75 + y * 150 + 1, 149, 149, "black")
+
         self.afficher_grille()
         self.afficher_centres()
         self.g.actualiser()
@@ -77,13 +84,28 @@ class Morpion:
                                 self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = -1
                                 j = 1
+
+                            if prochain_coup :
+                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
+                            # else :
+                            #     for i in self.dico_surbrillance:
+                            #         self.g.changerCouleur(i, "black")
                             prochain_coup = (self.dic_asso[objet][2], self.dic_asso[objet][3])
+                            if prochain_coup :
+                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "yellow")
+                            # else :
+                            #     for i in self.dico_surbrillance:
+                            #         self.g.changerCouleur(i, "yellow")
+
                         win = self.verif_win(self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]])
                         if abs(win) == 1:
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
-
-                            """ecrire fonction pour afficher les grand rond et crois quand une cellule est gagné"""
-
+                            self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 +1 ,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
+                            if win == -1 :
+                                image = "croix2.png"
+                            elif win == 1 :
+                                image = "rond2.png"
+                            self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
 
                             if abs(self.verif_win(self.main_mat)) == 1 :
                                 self.fin = True
