@@ -62,6 +62,11 @@ class Canevas(tk.Canvas):
     def changerPixel(self, x, y, col):
         return ObjetGraphique(self.dessinerRectangle(x,y,1,1,col), x, y, col)
 
+    def button(self,word,fx,x,y,col):
+        B=tk.Button(self,text=word, command=fx,fg='white',bg=col)
+        B.place(x=x,y=y)
+        return ObjetGraphique(B, x, y,col)
+
     def afficherImage(self, x, y, filename, sx=None, sy=None):
         image = Image.open(filename)
         if not image:
