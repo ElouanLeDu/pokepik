@@ -42,7 +42,7 @@ class Morpion:
     def afficher_morpion(self):
         for x in range(3):
             for y in range(3):
-                self.dico_surbrillance[(x,y)]=self.g.dessinerRectangle(375 + x * 150 + 1, 75 + y * 150 + 1, 149, 149, "black")
+                self.dico_surbrillance[(y,x)]=self.g.dessinerRectangle(375 + x * 150 + 1, 75 + y * 150 + 1, 149, 149, "black")
 
         self.afficher_grille()
         self.afficher_centres()
@@ -87,15 +87,10 @@ class Morpion:
 
                             if prochain_coup :
                                 self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
-                            # else :
-                            #     for i in self.dico_surbrillance:
-                            #         self.g.changerCouleur(i, "black")
+                            elif not prochain_coup :
+                                for i in self.dico_surbrillance:
+                                    self.g.changerCouleur(self.dico_surbrillance[i], "black")
                             prochain_coup = (self.dic_asso[objet][2], self.dic_asso[objet][3])
-                            if prochain_coup :
-                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "yellow")
-                            # else :
-                            #     for i in self.dico_surbrillance:
-                            #         self.g.changerCouleur(i, "yellow")
 
                         win = self.verif_win(self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]])
                         if abs(win) == 1:
@@ -111,6 +106,10 @@ class Morpion:
                                 self.fin = True
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 :
                             prochain_coup = None
+                            for i in self.dico_surbrillance:
+                                self.g.changerCouleur(self.dico_surbrillance[i],"cyan")
+                        elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 except :
                     continue
 
