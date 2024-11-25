@@ -67,6 +67,11 @@ class Canevas(tk.Canvas):
         B.place(x=x,y=y)
         return ObjetGraphique(B, x, y,col)
 
+    def entrytext(self,x,y,col):
+        e=tk.Entry(self,bg=col)
+        e.place(x=x,y=y)
+        return ObjetGraphique(e, x, y, col)
+
     def afficherImage(self, x, y, filename, sx=None, sy=None):
         image = Image.open(filename)
         if not image:

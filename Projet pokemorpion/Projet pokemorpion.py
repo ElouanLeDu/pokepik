@@ -181,7 +181,11 @@ class Pokemorpion():
         self.g.fermerFenetre()
         self.g.actualiser()
 
+    def distribute(self):
+        self.g.button('distri', self.distribute_interface, 200, 200, 'red')
+        self.g.actualiser()
     def distribute_interface(self):
+        self.distri_page=ouvrirFenetre(1000,1000)
         return None
 
     def distribute_random(self):
