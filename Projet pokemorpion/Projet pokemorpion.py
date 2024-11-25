@@ -6,7 +6,7 @@ from tkiteasy import *
 from math import *
 from time import time
 import matplotlib.pyplot as pyplt
-from Morpion import Morpion
+
 
 # Début du programme :
 # Aucune fonction n'a de renvoi. C'etait plus simple pour la construction du programme, bien que cela soit un peu inutile
@@ -17,7 +17,6 @@ class Pokemorpion():
         self.score2 = 0
         self.g = ouvrirFenetre(1200, 600)
         self.g.afficherImage(0, 0, "fond_menu.jpg")
-        self.jeu
 
 
     def affichage_menu(self):  # affichage du menu principal
@@ -159,8 +158,3 @@ class Pokemorpion():
 
 P = Pokemorpion()
 P.menu()
-
-
-
-# jeu = Morpion(P.g)
-# jeu.start()
