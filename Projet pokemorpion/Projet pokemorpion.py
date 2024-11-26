@@ -17,8 +17,6 @@ class Pokemorpion():
     def __init__(self):
         self.score1 = 0
         self.score2 = 0
-        self.g = ouvrirFenetre(1200, 600)
-        self.g.afficherImage(0, 0, "fond_menu.jpg")
         self.pk = pds.read_csv(r"pokemon.csv", index_col="Name")
         self.pk_normal = self.pk.loc[self.pk["Legendary"] == False]
         self.pk_legend = self.pk.loc[self.pk["Legendary"] == True]
@@ -39,6 +37,8 @@ class Pokemorpion():
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
         # cette fonction est utilisee a 2 moments differents, le parametre permet de les distinguer
         # et d'eviter des doublons
+        self.g = ouvrirFenetre(1200, 600)
+        self.g.afficherImage(0, 0, "fond_menu.jpg")
         if nb == 1:  # écran de début du jeu
             a = self.g.afficherTexte("Bienvenue sur le jeu du Pokemorpion", 700, 150, "black", 30)
             b = self.g.afficherTexte("Jouer", 700, 340, "black", 30)
@@ -208,7 +208,14 @@ class Pokemorpion():
 
 
     def random_draft(self):
-        self.distri_page=ouvrirFenetre(1200,600)
+        self.distri_page=ouvrirFenetre(1024,1024)
+        def back():
+            self.distri_page.fermerFenetre()
+            self.menu()
+        self.distri_page.afficherImage(0,0,'distri_page.jpg')
+        self.distri_page.afficherTexte('player 1',300,100,'black',30)
+        self.distri_page.button('submit',back,512,512,'black')
+        self.distri_page.actualiser()
         pool_normal = self.pk_normal.sample(n=90)
         pool_legend = self.pk_legend.sample(n=10)
         pool1, pool2 = pool_legend.copy(), pool_normal.copy()
@@ -230,13 +237,15 @@ class Pokemorpion():
             l2.append(self.get_pokemon_image(self.player_2[i]))
             #print(i)
             #print(l1,l2)
-        for n in range(50):
-            self.distri_page.create_image(10, 20*n, image=l1[n], anchor='nw')
-            self.distri_page.create_image(1000, 20*n, image=l2[n], anchor='nw')
+        for n in range(25):
+            self.distri_page.create_image(10, 30*n, image=l1[n], anchor='nw')
+            self.distri_page.create_image(110, 30*n, image=l1[n+25], anchor='nw')
+            self.distri_page.create_image(914, 30*n, image=l2[n], anchor='nw')
+            self.distri_page.create_image(814, 30*n, image=l2[n+25], anchor='nw')
             time.sleep(0.05)
-        self.distri_page.actualiser()
+            self.distri_page.actualiser()
         self.distri_page.attendreClic()
-        self.distri_page.fermerFenetre()
+
 
 
 
