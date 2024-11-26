@@ -3,9 +3,11 @@ import pandas as pds
 import requests
 from random import *
 from tkiteasy import *
+from PIL import Image, ImageTk
 from io import BytesIO
+import tkinter as tk
 from math import *
-from time import time
+import time
 import matplotlib.pyplot as pyplt
 
 # Début du programme :
@@ -31,6 +33,7 @@ class Pokemorpion():
         self.robot = self.g.afficherTexte("Mode robot expert", 765, 230, "black", 20)
         self.tabscore = self.g.afficherTexte("Tableau des scores", 544, 550, "black", 15)
         self.q = self.g.afficherTexte("Quitter le jeu", 900, 540, "black", 15)
+        self.distr_button=self.g.button('distri', self.distribute_interface, 200, 200, 'red')
         self.g.actualiser()
 
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
@@ -113,6 +116,7 @@ class Pokemorpion():
             self.superclean()
             self.affichage_menu()
 
+
     def Tableau_des_scores(self):  # affichage du tableau des scores
 
         self.g.afficherTexte("Tableau des scores", 300, 100, "black", 30)
@@ -160,42 +164,51 @@ class Pokemorpion():
 
     # Fonction pour récupérer l'image d'un Pokémon
     def get_pokemon_image(self,pokemon_name):
-        cleaned_name = self.nettoyer_nom_pokemon(pokemon_name)
-        url = f"https://pokeapi.co/api/v2/pokemon/{cleaned_name.lower()}"
+            # 请求 PokeAPI
+        pokemon_name=self.nettoyer_nom_pokemon(pokemon_name)
+        url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name.lower()}"
         response = requests.get(url)
-        data = response.json()
-        image_url = data['sprites']['front_default']
 
-        # Télécharger l'image
-        img_response = requests.get(image_url)
-        img_data = img_response.content
-        img = Image.open(BytesIO(img_data))
-        return ImageTk.PhotoImage(img)
+        if response.status_code != 200:
+            print(f"Failed to fetch Pokémon data: {pokemon_name} {response.status_code}")
+            return None
+
+        try:
+            data = response.json()
+            # 获取宝可梦的默认图像 URL
+            image_url = data['sprites']['front_default']
+
+            if not image_url:
+                print("No image available for this Pokémon.")
+                return None
+
+            # 下载图像
+            img_response = requests.get(image_url)
+            if img_response.status_code != 200:
+                print(f"Failed to fetch Pokémon image: {img_response.status_code}")
+                return None
+
+            img_data = img_response.content
+            img = Image.open(BytesIO(img_data))
+            return ImageTk.PhotoImage(img)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
 
     def affiche_image(self,name):
         a=self.nettoyer_nom_pokemon(name)
         img = self.get_pokemon_image(a)
-        print(img)
+        return img
         self.g.create_image(10, 10, image=img,anchor='nw')
-        self.g.attendreClic()
-        self.g.fermerFenetre()
-        self.g.actualiser()
 
-    def distribute(self):
-        self.g.button('distri', self.distribute_interface, 200, 200, 'red')
-        self.g.actualiser()
     def distribute_interface(self):
-        self.distri_page=ouvrirFenetre(1000,1000)
-        return None
+        self.g.master.destroy()
+        self.random_draft()
 
-    def distribute_random(self):
-        pool_normal = self.pk_normal.sample(n=90)
-        pool_legend = self.pk_legend.sample(n=10)
-
-        return None
 
     def random_draft(self):
-        self.distri=ouvrirFenetre(1200, 600)
+        self.distri_page=ouvrirFenetre(1200,600)
         pool_normal = self.pk_normal.sample(n=90)
         pool_legend = self.pk_legend.sample(n=10)
         pool1, pool2 = pool_legend.copy(), pool_normal.copy()
@@ -207,6 +220,26 @@ class Pokemorpion():
         normal_p2 = pool2.sample(n=45, random_state=42)
         self.player_1 = pds.concat([legned_p1, normal_p1])
         self.player_2 = pds.concat([legned_p2, normal_p2])
+        self.player_1 = list(self.player_1.index)
+        self.player_2 = list(self.player_2.index)
+        #print(self.player_1)
+        l1=[]
+        l2=[]
+        for i in range(50):
+            l1.append(self.get_pokemon_image(self.player_1[i]))
+            l2.append(self.get_pokemon_image(self.player_2[i]))
+            #print(i)
+            #print(l1,l2)
+        for n in range(50):
+            self.distri_page.create_image(10, 20*n, image=l1[n], anchor='nw')
+            self.distri_page.create_image(1000, 20*n, image=l2[n], anchor='nw')
+            time.sleep(0.05)
+        self.distri_page.actualiser()
+        self.distri_page.attendreClic()
+        self.distri_page.fermerFenetre()
+
+
+
 
     def distribute_draft(self):
         return None
@@ -222,5 +255,4 @@ class Pokemorpion():
 
 
 P = Pokemorpion()
-#P.menu()
-P.affiche_image(('pikachu'))
+P.menu()
