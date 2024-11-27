@@ -5,7 +5,7 @@ import threading
 from random import choice
 import copy
 
-pk=pd.read_csv(r"\informatique\L3\pythonProject 06\pokemon.csv",index_col="Name")
+pk=pd.read_csv(r"pokemon.csv",index_col="Name")
 pk_normal=pk.loc[pk["Legendary"]==False]
 pk_legend=pk.loc[pk["Legendary"]==True]
 
@@ -73,10 +73,10 @@ def random_draft(pool_legend,pool_normal):
     normal_p2=pool2.sample(n=45, random_state=42)
     player_1=pd.concat([legned_p1,normal_p1])
     player_2=pd.concat([legned_p2,normal_p2])
-    return player_1,player_2
+    return player_1.index,player_2.index
 
 
-#print(random_draft(pool_legend,pool_normal))
+print(random_draft(pool_legend,pool_normal))
 
 
 
