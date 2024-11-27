@@ -107,6 +107,9 @@ class Canevas(tk.Canvas):
         obj.y += y
         self.move(obj.num,x,y)
 
+    def deplacer_img(self, obj, dx, dy):
+        self.move(obj, dx, dy)
+
     def supprimer(self, obj):
         self.delete(obj.num)
         del ObjetGraphique.annuaire[obj.num]
