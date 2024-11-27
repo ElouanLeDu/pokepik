@@ -179,13 +179,6 @@ class Pokemorpion():
         else:
             print(f"can't find {pokemon_name} in pokemon_images ")
 
-
-
-    def distribute_interface1(self):
-        self.g.master.destroy()
-        self.random_draft()
-
-
     def random_draft(self):
         self.g.afficherImage(0,0,'distri_page.jpg')
         self.g.afficherTexte('player 1',300,100,'black',30)
@@ -228,6 +221,8 @@ class Pokemorpion():
         if x == submit:
             self.superclean()
     def distribute_draft(self):
+
+
         return None
 
 
