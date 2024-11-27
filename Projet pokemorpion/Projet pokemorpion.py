@@ -11,6 +11,7 @@ import tkinter as tk
 from io import BytesIO
 import pygame
 import time
+from Morpion import Morpion
 
 
 # Début du programme :
@@ -160,7 +161,7 @@ class Pokemorpion():
         pool1, pool2 = pool_legend.copy(), pool_normal.copy()
         legned_p1 = pool1.sample(n=5, random_state=42)
         pool1 = pool1.drop(legned_p1.index, inplace=False)
-        legned_p2 = pool1.sample(n=5, random_state=42)*
+        legned_p2 = pool1.sample(n=5, random_state=42)
         normal_p1 = pool2.sample(n=45, random_state=42)
         pool2 = pool2.drop(normal_p1.index, inplace=False)
         normal_p2 = pool2.sample(n=45, random_state=42)
