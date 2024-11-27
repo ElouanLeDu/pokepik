@@ -7,9 +7,8 @@ import math
 class Morpion:
     def __init__(self,g):
         self.g = g
-        self.mat = np.array([[np.zeros((3, 3)) for _ in range(3)] for _ in range(3)])
-        self.main_mat = np.zeros(((3,3)))
-        # self.dic_poke = {}
+        self.mat = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)]) #la matrice contenant des matrices qui representent les petits morpion
+        self.main_mat = np.zeros(((3,3)))                                             #la matrice qui represente le grand morpion
         self.dic_asso = {}
         self.fin = False
         self.dico_surbrillance={}
@@ -17,6 +16,8 @@ class Morpion:
             (600, 300,(1,1)), (600, 150,(1,0)), (600, 450,(1,2)),
             (450, 300,(0,1)), (450, 150,(0,0)), (450, 450,(0,2)),
             (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]
+
+        self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
 
     def afficher_grille(self):
         for y in [225, 375]:
@@ -40,7 +41,7 @@ class Morpion:
 
 
 
-    def afficher_morpion(self):
+    def afficher_morpion(self):  #tout ceci sert juste a afficher le morpion
         for x in range(3):
             for y in range(3):
                 self.dico_surbrillance[(y,x)]=self.g.dessinerRectangle(375 + x * 150 + 1, 75 + y * 150 + 1, 149, 149, "black")
@@ -49,13 +50,15 @@ class Morpion:
         self.afficher_centres()
         self.g.actualiser()
 
-    def verif_win(self,mat):
+    def verif_win(self,mat):   # verifie si un morpion est gagné renvoie -1, 1 ou 0 si personne a gagné
+        # ligne et colonne
         for i in range (3):
             if abs(mat[i][0] + mat[i][1] + mat[i][2]) == 3 :
                 return mat[i][0]
             if abs(mat[0][i] + mat[1][i] + mat[2][i]) == 3 :
                 return mat[0][i]
 
+        #diagonale
         if abs(mat[0][0] + mat[1][1] + mat[2][2]) == 3 :
             return mat[0][0]
         if abs(mat[2][0] + mat[1][1] + mat[0][2]) == 3 :
@@ -63,19 +66,23 @@ class Morpion:
 
         return 0
 
+
+    #jeu simple avec deux joueurs
     def start(self):
         self.afficher_morpion()
+        #le joueur qui commence
         j = 1
         prochain_coup = -1
         while not self.fin:
             clic = self.g.recupererClic()
             touche = self.g.recupererTouche()
-            if touche == "Return":
-                self.fin = True
             if clic :
+                #l'utilisation de try est surtout utile pour voir si le clic ramene bien a un objet
                 try :
                     objet = self.g.recupererObjet(clic.x, clic.y)
+                    #on verfifie si l'emplacement peut etre jouer
                     if objet in self.dic_asso and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0 and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0 :
+                        #si le prochain coup = -1 alors on peut jouer ou on veut
                         if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
                             if j == 1:
                                 self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
@@ -86,6 +93,7 @@ class Morpion:
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = -1
                                 j = 1
 
+                            #juste pour l'effet de surbrillance
                             if prochain_coup != -1:
                                 self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
                             else :
@@ -93,6 +101,7 @@ class Morpion:
                                     self.g.changerCouleur(self.dico_surbrillance[i], "black")
                             prochain_coup = (self.dic_asso[objet][2], self.dic_asso[objet][3])
 
+                        #on verifie si le morpion sur lequel on a joué a été gagné ou pas
                         win = self.verif_win(self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]])
                         if abs(win) == 1:
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
@@ -102,9 +111,9 @@ class Morpion:
                             elif win == 1 :
                                 image = "rond2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
-
                             if abs(self.verif_win(self.main_mat)) == 1 :
                                 self.fin = True
+
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                             prochain_coup = -1
                             for i in self.dico_surbrillance:
@@ -115,10 +124,7 @@ class Morpion:
                     continue
 
 
-
-
-
-    def eval_petit(self,mat):
+    def eval_petit(self,mat):#cette fonction evalue un morpion de base
         #le joueur est représenté par des 1 sur la mat et l'ia par des -1
         evaluation = 0
         score = [[0.2, 0.17, 0.2],
@@ -142,6 +148,9 @@ class Morpion:
                 evaluation -= 7
             if mat[i[0]][i[1]] + mat[j[0]][j[1]] + mat[k[0]][k[1]] == -3 :  #le joueur peut gagner pour sur
                 evaluation += 7
+
+
+        #tout ce qui suit repertorie juste les cas ou une suite de deux rond a été bloqué par une croix et inversement
 
         a = -1
 
@@ -172,12 +181,14 @@ class Morpion:
         return evaluation
 
 
-    def eval_grand(self,mat,pos_actuelle):
+    def eval_grand(self,mat,pos_actuelle):#cette fonction permet d'evaluer toute la grille actuelle
         score = [[1.4, 1, 1.4],
                  [1, 1.75, 1],
                 [1.4, 1, 1.4]] # matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes 0)
         evaluation = 0
         main_mat = np.zeros((3,3))
+
+        #on parcours tout les petits morpion
         for y in range(3):
             for x in range(3):
                 evaluation += self.eval_petit(mat[x][y]) * 1.5 * score[x][y]
@@ -191,8 +202,8 @@ class Morpion:
                 evaluation -= win * score[x][y]
                 main_mat[x][y] += win
 
-        evaluation -= self.verif_win(main_mat) * 5000
-        evaluation += self.eval_petit(main_mat) * 150
+        evaluation -= self.verif_win(main_mat) * 5000  #si il y'a une win totale on recompense beaucoup beaucoup
+        evaluation += self.eval_petit(main_mat) * 150  #on evalue le gros plateau comme les petits mais avec un plus gros coeff pour que l'ia privilegie le gros plateau au petit
 
         return evaluation
 
@@ -207,34 +218,40 @@ class Morpion:
             return {0:evalfin,1:meilleur_coup}
 
         if grille_active == -1 or self.verif_win(main_mat[grille_active[0]][grille_active[1]])!=0 or all(x != 0 for y in main_mat[grille_active[0]][grille_active[1]] for x in y) :
-            grille_active = -1
-            print("caca")
+            grille_active = -1#on peut jouer sur toute les grilles
 
+        #on commence par le joueur maximisant
         if joueur_max:
             max_eval = -math.inf
+            #on parcours toutes les cases d'un petit morpion
             for y in range(3):
                 for x in range(3):
+                    #si on peut jouer sur toutes les grilles il faut parcourir toute les positions possible ca peut donc prendre plus de temp
                     if grille_active == -1 :
                         for h in range(3):
                             for l in range(3):
                                 if self.verif_win(main_mat[h][l]) == 0 :
                                     if main_mat[h][l][y][x] == 0:
+                                        #on joue le coup
                                         main_mat[h][l][y][x] = -1
                                         eval = self.minimax(main_mat, (y, x), profondeur - 1, alpha, beta, False)
+                                        #on annule ensuite le coup
                                         main_mat[h][l][y][x] = 0
 
                                         monstre = eval[0]
                                         if monstre > max_eval:
                                             max_eval = monstre
+                                            #on sauvegarde le coup qui a permis "d'ameliorer le score"
                                             meilleur_coup = (h, l, y, x)
                                         alpha = max(alpha, monstre)
 
                                         # Coupure alpha-bêta
                                         if beta <= alpha:
                                             break
-                                        # Ajout d'un `break` externe à la boucle `l`
+
                                     if beta <= alpha:
                                         break
+
                     else :
                             if main_mat[grille_active[0]][grille_active[1]][y][x] == 0 :
                                 main_mat[grille_active[0]][grille_active[1]][y][x] = -1
@@ -253,6 +270,7 @@ class Morpion:
 
             return {0:max_eval,1:meilleur_coup}
 
+        #on refait quasi la meme chose pour le joueur minimisant
         else :
             min_eval = math.inf
             for y in range(3):
@@ -341,13 +359,19 @@ class Morpion:
                         continue
 
             else :
-                time.sleep(1)
-                coup_ia = self.minimax(self.mat,prochain_coup,4,-math.inf,math.inf,True)
+                nb_coup_possible = 0
+                for x in range(3):
+                    for y in range(3):
+                        if self.verif_win(self.mat[x][y]) == 0 :
+                            for x1 in range(3):
+                                for y1 in range(3):
+                                    if self.mat[x][y][x1][y1]==0:
+                                        nb_coup_possible += 1
+                coup_ia = self.minimax(self.mat,prochain_coup,min(4 ,nb_coup_possible),-math.inf,math.inf,True)
+                print(coup_ia)
                 self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = -1
-                print(self.mat)
 
                 centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
-                print(centre)
                 self.g.afficherImage((centre[0] - 67.5) + 45 * coup_ia[1][3] + 2.5, (centre[1] - 67.5) + 45 * coup_ia[1][2] + 2.5, "croix.png")
                 j = 1
 
@@ -370,6 +394,12 @@ class Morpion:
                     self.g.afficherImage(375 + coup_ia[1][1] * 150,
                                          75 + coup_ia[1][0] * 150, image)
                     if abs(self.verif_win(self.main_mat)) == 1:
+                        if win == -1:
+                            image = "croix2.png"
+                        elif win == 1:
+                            image = "rond2.png"
+                        self.g.afficherImage(0,0,image)
+                        time.sleep(10)
                         self.fin = True
                 if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                     prochain_coup = -1
@@ -379,9 +409,75 @@ class Morpion:
                     self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 self.g.actualiser()
 
+    def start_poke(self):
+        self.afficher_morpion()
+        #le joueur qui commence
+        j = 1
+        prochain_coup = -1
+        while not self.fin:
+            clic = self.g.recupererClic()
+            touche = self.g.recupererTouche()
+            if clic :
+                try :
+                    objet = self.g.recupererObjet(clic.x, clic.y)
+                    if objet in self.dic_asso and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0 and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0 and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j :
+
+                        if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
+                            if self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == -j :
+
+                                """choisir un pokemon contre qui il combattra"""
+                                """lancez combat et afficher le vainceur"""
+
+                                self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
+                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
+                                if j == 1:
+                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+
+                                elif j == -1:
+                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
+
+                            else :
+
+                                """choisir et placez un pokemon"""
+
+                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
+
+                            j = -j
+
+                            #juste pour l'effet de surbrillance
+                            if prochain_coup != -1:
+                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
+                            else :
+                                for i in self.dico_surbrillance:
+                                    self.g.changerCouleur(self.dico_surbrillance[i], "black")
+                            prochain_coup = (self.dic_asso[objet][2], self.dic_asso[objet][3])
+
+                        #on verifie si le morpion sur lequel on a joué a été gagné ou pas
+                        win = self.verif_win(self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]])
+                        if abs(win) == 1:
+                            self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
+                            self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 +1 ,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
+                            if win == -1 :
+                                image = "croix2.png"
+                            else :
+                                image = "rond2.png"
+                            self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
+                            if abs(self.verif_win(self.main_mat)) == 1 :
+                                self.fin = True
+
+                        if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
+                            prochain_coup = -1
+                            for i in self.dico_surbrillance:
+                                self.g.changerCouleur(self.dico_surbrillance[i],"cyan")
+                        elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+
+                except :
+                    continue
+
+
 
 g = ouvrirFenetre(1200,600)
 jeu = Morpion(g)
-jeu.start_ia()
-# jeu.test_minimax()
-# jeu.start()
+# jeu.start_ia()
+jeu.start()
