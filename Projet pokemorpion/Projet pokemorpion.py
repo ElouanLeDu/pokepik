@@ -1,9 +1,15 @@
 import numpy as np
 import pandas as pds
-import random
-from tkiteasy import *
+
 import os
-from time import time
+from random import *
+from tkiteasy import *
+from PIL import Image, ImageTk
+from io import BytesIO
+import tkinter as tk
+from math import *
+import time
+
 import matplotlib.pyplot as pyplt
 import requests
 from PIL import Image, ImageTk
@@ -20,6 +26,11 @@ from Morpion import Morpion
 
 class Pokemorpion():
     def __init__(self):
+        self.pk = pds.read_csv(r"pokemon.csv", index_col="Name")
+        self.pk_normal = self.pk.loc[self.pk["Legendary"] == False]
+        self.pk_legend = self.pk.loc[self.pk["Legendary"] == True]
+        self.player1={}
+        self.player2={}
         self.g = ouvrirFenetre(1200, 600)
         self.g.afficherImage(0, 0, "fond_entree.png")
         self.jeu = Morpion(self.g)
@@ -31,16 +42,18 @@ class Pokemorpion():
         self.duo = self.g.afficherTexte("Joueur contre joueur", 525, 230, "black", 20)
         self.algosimple = self.g.afficherTexte("Duel contre l'IA", 767, 180, "black", 20)
         self.robot = self.g.afficherTexte("Duel d'IA", 765, 230, "black", 20)
+        self.combat= self.g.afficherTexte("combat", 765, 230, "black", 20)
         self.q = self.g.afficherTexte("Quitter le jeu", 900, 540, "black", 15)
+
+        self.distri_random=self.g.afficherTexte('distri_random', 200, 200, 'red')
+        self.distri_draft=self.g.afficherTexte('distri_draft', 200, 250, 'blue')
+
         self.duel_de_pokemon=self.g.afficherTexte("Duel de pokemon", 200, 540, "black", 15)
-        self.distri_random = self.g.afficherTexte('distri_random', 200, 200, 'red')
-        self.distri_draft = self.g.afficherTexte('distri_draft', 200, 250, 'blue')
         self.g.actualiser()
 
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
         # cette fonction est utilisee a 2 moments differents, le parametre permet de les distinguer
         # et d'eviter des doublons
-
         if nb == 1:  # écran de début du jeu
 
             a = self.g.afficherImage(430,40,"Titre.png")
@@ -76,8 +89,7 @@ class Pokemorpion():
                 rejouer = True
 
                 while rejouer == True:  # même fonctionnement pour le mode duo en dehors du fait que le jeu est adapté pour 2 joueurs
-                    self.superclean()
-                    #fonction jeu 2 joueurs ici
+
                     self.superclean()
                     self.transition(2)
                     self.superclean()
@@ -90,17 +102,22 @@ class Pokemorpion():
                     self.score1 = 0
                     self.score2 = 0
 
-            if x == self.algosimple:  # mode robot resolution simple
+            elif x == self.algosimple:  # mode robot resolution simple
 
-                self.superclean()
+                self.g.supprimerTout()
 
-                #self.mode_auto_simple IA simple
+
+
                 clic = self.g.attendreClic()
                 x = self.g.recupererObjet(clic.x, clic.y)
 
+            if x==self.combat:
+                self.g.supprimerTout()
 
+                clic = self.g.attendreClic()
+                x = self.g.recupererObjet(clic.x, clic.y)
 
-            if x == self.robot:  # algo etape 3
+            elif x == self.robot:  # algo etape 3
 
 
                 self.superclean()
@@ -112,18 +129,19 @@ class Pokemorpion():
                 x = self.g.recupererObjet(clic.x, clic.y)
 
 
-            if x == self.duel_de_pokemon:  # affichage du tableau des scores
+            if x == self.duel_de_pokemon:
+
                 self.superclean()
 
 
                 clic = self.g.attendreClic()
                 x = self.g.recupererObjet(clic.x, clic.y)
 
-            elif x == self.distri_random:
+            elif x==self.distri_random:
                 self.superclean()
                 self.random_draft()
 
-            elif x == self.distri_draft:
+            elif x==self.distri_draft:
                 self.superclean()
                 self.distri_draft()
 
@@ -134,11 +152,16 @@ class Pokemorpion():
             self.superclean()
             self.affichage_menu()
 
-    def get_pokemon_image(self, pokemon_name):
-        pokemon_name = f'{pokemon_name}.png'  # add png
-        files = os.listdir('pokemon_images')  # list of picture's name
+
+
+
+
+    # Fonction pour récupérer l'image d'un Pokémon
+    def get_pokemon_image(self,pokemon_name):
+        pokemon_name=f'{pokemon_name}.png'#add png
+        files = os.listdir('pokemon_images') #list of picture's name
         if pokemon_name in files:
-            image_path = os.path.join('pokemon_images', pokemon_name)  # charge image
+            image_path = os.path.join('pokemon_images', pokemon_name) #charge image
             try:
                 print(f'already found {pokemon_name}')
                 return image_path
@@ -147,14 +170,17 @@ class Pokemorpion():
         else:
             print(f"can't find {pokemon_name} in pokemon_images ")
 
+
+
     def distribute_interface1(self):
         self.g.master.destroy()
         self.random_draft()
 
+
     def random_draft(self):
         self.g.afficherImage(0,0,'distri_page.jpg')
-        self.g.afficherTexte('player 1', 300, 100, 'black', 30)
-        submit = self.g.afficherTexte('submit', 512, 512, 'black')
+        self.g.afficherTexte('player 1',300,100,'black',30)
+        submit=self.g.afficherTexte('submit',512,512,'black')
         self.g.actualiser()
         pool_normal = self.pk_normal.sample(n=90)
         pool_legend = self.pk_legend.sample(n=10)
@@ -169,33 +195,31 @@ class Pokemorpion():
         self.player_2 = pds.concat([legned_p2, normal_p2])
         self.player_1 = list(self.player_1.index)
         self.player_2 = list(self.player_2.index)
-        # print(self.player_1)
-        l1 = []
-        l2 = []
+        #print(self.player_1)
+        l1=[]
+        l2=[]
         for i in range(50):
             l1.append(self.get_pokemon_image(self.player_1[i]))
             l2.append(self.get_pokemon_image(self.player_2[i]))
-            # print(i)
-            # print(l1,l2)
+            #print(i)
+            #print(l1,l2)
         for n in range(25):
             print(l1[n])
-            self.g.afficherImage(10, 40 * n, l1[n], 40, 40)
+            self.g.afficherImage(10, 40*n, l1[n],40,40)
             print(l1[n + 25])
-            self.g.afficherImage(110, 40 * n, l1[n + 25], 40, 40)
+            self.g.afficherImage(110, 40*n, l1[n+25],40,40)
             print(l2[n])
-            self.g.afficherImage(890, 40 * n, l2[n], 40, 40)
+            self.g.afficherImage(890, 40*n, l2[n],40,40)
             print(l2[n + 25])
-            self.g.afficherImage(790, 40 * n, l2[n + 25], 40, 40)
+            self.g.afficherImage(790, 40*n, l2[n+25],40,40)
             time.sleep(0.05)
             self.g.actualiser()
         clic = self.g.attendreClic()
         x = self.g.recupererObjet(clic.x, clic.y)
         if x == submit:
             self.superclean()
-
     def distribute_draft(self):
         return None
-
 
 
     def superclean(self):
@@ -501,3 +525,4 @@ g=ouvrirFenetre(1200,600)
 C=combat_de_pokemon(g)
 C.combat(poke1,poke2)
 C.fin()
+
