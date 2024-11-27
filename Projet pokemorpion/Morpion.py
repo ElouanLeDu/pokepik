@@ -477,7 +477,7 @@ class Morpion:
 
 
 
-g = ouvrirFenetre(1200,600)
-jeu = Morpion(g)
+# g = ouvrirFenetre(1200,600)
+# jeu = Morpion(g)
 # jeu.start_ia()
-jeu.start()
+# jeu.start()
