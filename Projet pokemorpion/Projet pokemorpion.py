@@ -12,6 +12,7 @@ from io import BytesIO
 import pygame
 import time
 
+
 # Début du programme :
 # Aucune fonction n'a de renvoi. C'etait plus simple pour la construction du programme, bien que cela soit un peu inutile
 
@@ -132,7 +133,6 @@ class Pokemorpion():
 
 P = Pokemorpion()
 P.menu()
-
 
 class combat_de_pokemon ():
 
