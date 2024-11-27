@@ -29,6 +29,7 @@ class Pokemorpion():
         self.duo = self.g.afficherTexte("Joueur contre joueur", 525, 230, "black", 20)
         self.algosimple = self.g.afficherTexte("Duel contre l'IA", 767, 180, "black", 20)
         self.robot = self.g.afficherTexte("Duel d'IA", 765, 230, "black", 20)
+        self.combat= self.g.afficherTexte("combat", 765, 230, "black", 20)
         self.q = self.g.afficherTexte("Quitter le jeu", 900, 540, "black", 15)
         self.duel_de_pokemon=self.g.afficherTexte("Duel de pokemon", 200, 540, "black", 15)
         self.g.actualiser()
@@ -72,8 +73,7 @@ class Pokemorpion():
                 rejouer = True
 
                 while rejouer == True:  # même fonctionnement pour le mode duo en dehors du fait que le jeu est adapté pour 2 joueurs
-                    self.superclean()
-                    #fonction jeu 2 joueurs ici
+
                     self.superclean()
                     self.transition(2)
                     self.superclean()
@@ -88,25 +88,30 @@ class Pokemorpion():
 
             if x == self.algosimple:  # mode robot resolution simple
 
-                self.superclean()
+                self.g.supprimerTout()
 
-                #self.mode_auto_simple IA simple
+
+
                 clic = self.g.attendreClic()
                 x = self.g.recupererObjet(clic.x, clic.y)
 
+            if x==self.combat:
+                self.g.supprimerTout()
 
+                clic = self.g.attendreClic()
+                x = self.g.recupererObjet(clic.x, clic.y)
 
             if x == self.robot:  # algo etape 3
 
 
                 self.superclean()
 
-                #self.mode_auto_opti(1) robot fort
+
                 clic = self.g.attendreClic()
                 x = self.g.recupererObjet(clic.x, clic.y)
 
 
-            if x == self.duel_de_pokemon:  # affichage du tableau des scores
+            if x == self.duel_de_pokemon:
                 self.superclean()
 
 
