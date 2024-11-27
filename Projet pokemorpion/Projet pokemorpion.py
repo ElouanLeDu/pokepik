@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pds
-import requests
+import os
 from random import *
 from tkiteasy import *
 from PIL import Image, ImageTk
@@ -31,7 +31,7 @@ class Pokemorpion():
         self.robot = self.g.afficherTexte("Mode robot expert", 765, 230, "black", 20)
         self.tabscore = self.g.afficherTexte("Tableau des scores", 544, 550, "black", 15)
         self.q = self.g.afficherTexte("Quitter le jeu", 900, 540, "black", 15)
-        self.distr_button=self.g.button('distri', self.distribute_interface, 200, 200, 'red')
+        self.distr_button=self.g.button('distri', self.distribute_interface1, 200, 200, 'red')
         self.g.actualiser()
 
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
@@ -155,54 +155,24 @@ class Pokemorpion():
 
         self.g.actualiser()
 
-    def nettoyer_nom_pokemon(self,nom):
-        # Vérifie si "Mega" est dans le nom
-        if "Mega" in nom:
-            # Séparer le nom en deux parties à "Mega" et retourner la première partie
-            return nom.split("Mega")[0].strip()
-        return nom  # Si "Mega" n'est pas présent, renvoie le nom original
 
     # Fonction pour récupérer l'image d'un Pokémon
     def get_pokemon_image(self,pokemon_name):
-            # 请求 PokeAPI
-        pokemon_name=self.nettoyer_nom_pokemon(pokemon_name)
-        url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name.lower()}"
-        response = requests.get(url)
+        pokemon_name=f'{pokemon_name}.png'#add png
+        files = os.listdir('pokemon_images') #list of picture's name
+        if pokemon_name in files:
+            image_path = os.path.join('pokemon_images', pokemon_name) #charge image
+            try:
+                print(f'already found {pokemon_name}')
+                return image_path
+            except Exception as e:
+                print(f"impossible charging {pokemon_name}，error：{e}")
+        else:
+            print(f"can't find {pokemon_name} in pokemon_images ")
 
-        if response.status_code != 200:
-            print(f"Failed to fetch Pokémon data: {pokemon_name} {response.status_code}")
-            return None
 
-        try:
-            data = response.json()
-            # 获取宝可梦的默认图像 URL
-            image_url = data['sprites']['front_default']
 
-            if not image_url:
-                print("No image available for this Pokémon.")
-                return None
-
-            # 下载图像
-            img_response = requests.get(image_url)
-            if img_response.status_code != 200:
-                print(f"Failed to fetch Pokémon image: {img_response.status_code}")
-                return None
-
-            img_data = img_response.content
-            img = Image.open(BytesIO(img_data))
-            return ImageTk.PhotoImage(img)
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None
-
-    def affiche_image(self,name):
-        a=self.nettoyer_nom_pokemon(name)
-        img = self.get_pokemon_image(a)
-        return img
-        self.g.create_image(10, 10, image=img,anchor='nw')
-
-    def distribute_interface(self):
+    def distribute_interface1(self):
         self.g.master.destroy()
         self.random_draft()
 
@@ -238,10 +208,14 @@ class Pokemorpion():
             #print(i)
             #print(l1,l2)
         for n in range(25):
-            self.distri_page.create_image(10, 30*n, image=l1[n], anchor='nw')
-            self.distri_page.create_image(110, 30*n, image=l1[n+25], anchor='nw')
-            self.distri_page.create_image(914, 30*n, image=l2[n], anchor='nw')
-            self.distri_page.create_image(814, 30*n, image=l2[n+25], anchor='nw')
+            print(l1[n])
+            self.distri_page.afficherImage(10, 40*n, l1[n],40,40)
+            print(l1[n + 25])
+            self.distri_page.afficherImage(110, 40*n, l1[n+25],40,40)
+            print(l2[n])
+            self.distri_page.afficherImage(890, 40*n, l2[n],40,40)
+            print(l2[n + 25])
+            self.distri_page.afficherImage(790, 40*n, l2[n+25],40,40)
             time.sleep(0.05)
             self.distri_page.actualiser()
         self.distri_page.attendreClic()

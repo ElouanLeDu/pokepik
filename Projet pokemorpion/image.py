@@ -1,78 +1,38 @@
 import os
-import requests
-from bs4 import BeautifulSoup
-import pandas as pd
 from PIL import Image
-from io import BytesIO
+import pandas as pds
 
-# 读取 Excel 文件，提取宝可梦名称
-input_file = 'pokemon.csv'  # 替换为您的文件路径
-output_folder = 'pokemon_images'  # 存储图片的文件夹
-os.makedirs(output_folder, exist_ok=True)
+def load_image_by_name(folder_path, image_name):
+    """
+    从指定文件夹中调取对应名字的图片。
 
-# 读取 Excel 数据
-df = pd.read_csv(input_file)
-
-# 确保有 'Name' 列
-if 'Name' not in df.columns:
-    raise ValueError("The Excel file must contain a 'Name' column.")
-
-# 获取所有宝可梦的名称
-pokemon_names = df['Name'].tolist()
-
-
-# 定义函数抓取图片
-def fetch_pokemon_image(name):
-    base_url = f"https://bulbapedia.bulbagarden.net/wiki/{name}"
-    try:
-        # 发送请求
-        response = requests.get(base_url)
-        if response.status_code != 200:
-            print(f"Failed to fetch page for {name}")
+    :param folder_path: 图片所在文件夹的路径
+    :param image_name: 需要调取的图片名字（包括扩展名）
+    :return: PIL.Image 对象，如果未找到则返回 None
+    """
+    # 获取文件夹中所有文件的列表
+    image_name = f"{image_name}.png"
+    files = os.listdir(folder_path)
+    # 检查目标图片是否在文件列表中
+    if image_name in files:
+        image_path = os.path.join(folder_path, image_name)
+        # 使用PIL加载图片
+        try:
+            img = Image.open(image_path)
+            return img
+        except Exception as e:
+            print(f"无法加载图片 {image_name}，错误：{e}")
             return None
-
-        # 解析 HTML
-        soup = BeautifulSoup(response.content, 'html.parser')
-        # 查找图片标签（通常是第一个包含 Pokémon 图片的标签）
-        image_tag = soup.find('a', class_='image')
-        if image_tag and image_tag.img:
-            # 提取图片 URL
-            img_url = 'https:' + image_tag.img['src']
-            return img_url
-        else:
-            print(f"Image not found for {name}")
-            return None
-    except Exception as e:
-        print(f"Error fetching image for {name}: {e}")
+    else:
+        print(f"未找到图片 {image_name} 在文件夹 {folder_path} 中。")
         return None
 
 
-# 定义函数下载图片
-def download_image(img_url, name):
-    try:
-        response = requests.get(img_url)
-        if response.status_code == 200:
-            img = Image.open(BytesIO(response.content))
-            img_path = os.path.join(output_folder, f"{name}.png")
-            img.save(img_path)
-            print(f"Downloaded: {name}")
-            return img_path
-        else:
-            print(f"Failed to download image for {name}")
-            return None
-    except Exception as e:
-        print(f"Error downloading image for {name}: {e}")
-        return None
+# 示例用法
+folder = "pokemon_images"  # 替换为你的文件夹路径n
+names = pds.read_csv("pokemon.csv")
+lst=names["Name"]
+for i in lst:# 替换为目标图片名称
+    image = load_image_by_name(folder, i)
 
 
-# 主逻辑：抓取并下载图片
-df['Image URL'] = df['Name'].apply(fetch_pokemon_image)
-df['Local Path'] = df.apply(
-    lambda row: download_image(row['Image URL'], row['Name']) if row['Image URL'] else None, axis=1
-)
-
-# 保存结果到 Excel 文件
-output_excel = '/mnt/data/pokemon_with_downloaded_images.xlsx'
-df.to_excel(output_excel, index=False)
-
-print(f"Process completed. Results saved to {output_excel}")
