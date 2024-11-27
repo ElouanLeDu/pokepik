@@ -31,7 +31,8 @@ class Pokemorpion():
         self.robot = self.g.afficherTexte("Mode robot expert", 765, 230, "black", 20)
         self.tabscore = self.g.afficherTexte("Tableau des scores", 544, 550, "black", 15)
         self.q = self.g.afficherTexte("Quitter le jeu", 900, 540, "black", 15)
-        self.distr_button=self.g.button('distri', self.distribute_interface1, 200, 200, 'red')
+        self.distri_random=self.g.afficherTexte('distri_random', 200, 200, 'red')
+        self.distri_draft=self.g.afficherTexte('distri_draft', 200, 250, 'blue')
         self.g.actualiser()
 
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
@@ -79,7 +80,7 @@ class Pokemorpion():
                     self.score1 = 0
                     self.score2 = 0
 
-            if x == self.algosimple:  # mode robot resolution simple
+            elif x == self.algosimple:  # mode robot resolution simple
 
                 self.score_rob = 0  # initialisation à chaque fois des scores à 0 pour éviter une accumulation de score
                 self.score_exp = 0
@@ -91,7 +92,7 @@ class Pokemorpion():
 
 
 
-            if x == self.robot:  # algo etape 3
+            elif x == self.robot:  # algo etape 3
 
                 self.score_rob = 0
                 self.score_exp = 0
@@ -102,15 +103,23 @@ class Pokemorpion():
                 x = self.g.recupererObjet(clic.x, clic.y)
 
 
-            if x == self.tabscore:  # affichage du tableau des scores
+            elif x == self.tabscore:  # affichage du tableau des scores
                 self.superclean()
                 self.Tableau_des_scores()
 
                 clic = self.g.attendreClic()
                 x = self.g.recupererObjet(clic.x, clic.y)
 
+            elif x==self.distri_random:
+                self.superclean()
+                self.random_draft()
 
-            if x == self.q:  # bouton pour quitter le jeu
+            elif x==self.distri_draft:
+                self.superclean()
+                self.distri_draft()
+
+
+            elif x == self.q:  # bouton pour quitter le jeu
                 self.fin()
 
             self.superclean()
@@ -178,14 +187,10 @@ class Pokemorpion():
 
 
     def random_draft(self):
-        self.distri_page=ouvrirFenetre(1024,1024)
-        def back():
-            self.distri_page.fermerFenetre()
-            self.menu()
-        self.distri_page.afficherImage(0,0,'distri_page.jpg')
-        self.distri_page.afficherTexte('player 1',300,100,'black',30)
-        self.distri_page.button('submit',back,512,512,'black')
-        self.distri_page.actualiser()
+        self.g.afficherImage(0,0,'distri_page.jpg')
+        self.g.afficherTexte('player 1',300,100,'black',30)
+        submit=self.g.afficherTexte('submit',512,512,'black')
+        self.g.actualiser()
         pool_normal = self.pk_normal.sample(n=90)
         pool_legend = self.pk_legend.sample(n=10)
         pool1, pool2 = pool_legend.copy(), pool_normal.copy()
@@ -209,21 +214,19 @@ class Pokemorpion():
             #print(l1,l2)
         for n in range(25):
             print(l1[n])
-            self.distri_page.afficherImage(10, 40*n, l1[n],40,40)
+            self.g.afficherImage(10, 40*n, l1[n],40,40)
             print(l1[n + 25])
-            self.distri_page.afficherImage(110, 40*n, l1[n+25],40,40)
+            self.g.afficherImage(110, 40*n, l1[n+25],40,40)
             print(l2[n])
-            self.distri_page.afficherImage(890, 40*n, l2[n],40,40)
+            self.g.afficherImage(890, 40*n, l2[n],40,40)
             print(l2[n + 25])
-            self.distri_page.afficherImage(790, 40*n, l2[n+25],40,40)
+            self.g.afficherImage(790, 40*n, l2[n+25],40,40)
             time.sleep(0.05)
-            self.distri_page.actualiser()
-        self.distri_page.attendreClic()
-
-
-
-
-
+            self.g.actualiser()
+        clic = self.g.attendreClic()
+        x = self.g.recupererObjet(clic.x, clic.y)
+        if x == submit:
+            self.superclean()
     def distribute_draft(self):
         return None
 
