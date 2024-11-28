@@ -1,3 +1,5 @@
+from random import choice
+import copy
 import numpy as np
 import pandas as pds
 
@@ -8,10 +10,7 @@ from PIL import Image, ImageTk
 from io import BytesIO
 import tkinter as tk
 from math import *
-import time
-
 import matplotlib.pyplot as pyplt
-import requests
 from PIL import Image, ImageTk
 import tkinter as tk
 from io import BytesIO
@@ -28,8 +27,8 @@ class Pokemorpion():
         self.pk = pds.read_csv(r"pokemon.csv", index_col="Name")
         self.pk_normal = self.pk.loc[self.pk["Legendary"] == False]
         self.pk_legend = self.pk.loc[self.pk["Legendary"] == True]
-        self.player1={}
-        self.player2={}
+        self.player1=[]
+        self.player2=[]
         self.g = ouvrirFenetre(1200, 600)
         self.g.afficherImage(0, 0, "fond_entree.png")
 
@@ -140,7 +139,7 @@ class Pokemorpion():
 
             elif x==self.distri_draft:
                 self.superclean()
-                self.distri_draft()
+                self.distribute_draft()
 
 
             elif x == self.q:  # bouton pour quitter le jeu
@@ -168,8 +167,7 @@ class Pokemorpion():
             print(f"can't find {pokemon_name} in pokemon_images ")
 
     def random_draft(self):
-        self.g.afficherImage(0,0,'distri_page.jpg')
-        self.g.afficherTexte('player 1',300,100,'black',30)
+        self.g.afficherImage(0,0,'distri_page.jpg',1200,600)
         submit=self.g.afficherTexte('submit',512,512,'black')
         self.g.actualiser()
         pool_normal = self.pk_normal.sample(n=90)
@@ -199,19 +197,117 @@ class Pokemorpion():
             print(l1[n + 25])
             self.g.afficherImage(110, 40*n, l1[n+25],40,40)
             print(l2[n])
-            self.g.afficherImage(890, 40*n, l2[n],40,40)
+            self.g.afficherImage(1100, 40*n, l2[n],40,40)
             print(l2[n + 25])
-            self.g.afficherImage(790, 40*n, l2[n+25],40,40)
+            self.g.afficherImage(1000, 40*n, l2[n+25],40,40)
             time.sleep(0.05)
             self.g.actualiser()
         clic = self.g.attendreClic()
         x = self.g.recupererObjet(clic.x, clic.y)
         if x == submit:
             self.superclean()
+
+    def choose(self,pool,pl1,pl2,end_1_x,end_1_y,end_2_x,end_2_y):
+        time_start = time.time()
+        time_now = time.time()
+        print(pool.shape[0])
+        ch = pool.sample(n=2, random_state=42)
+        #print('ch:',ch)
+        pool.drop(ch.index, inplace=True)
+        ch=list(ch.index)
+        #print(pool.shape[0])
+        image_1_path=self.get_pokemon_image(ch[0])
+        image_2_path=self.get_pokemon_image(ch[1])
+        image_1=self.g.afficherImage(200,300,image_1_path,200,200)
+        image_2=self.g.afficherImage(750,300,image_2_path,200,200)
+
+        while time_now <= time_start+10:
+            time_now=time.time()
+            t=self.g.afficherTexte(f"time:{int(time_start+10-time_now)}", 600, 150)
+            clic=self.g.recupererClic()
+            self.g.supprimer(t)
+            if clic!=None:
+                o = self.g.recupererObjet(clic.x, clic.y)
+                if o==image_1:
+                    pl1.append(ch[0])
+                    print('pl1:',pl1)
+                    pl2.append(ch[1])
+                    print('pl2', pl2)
+                    ch=None
+                    for i in range(10):
+                        self.g.supprimer(image_1)
+                        self.g.supprimer(image_2)
+                        image_1 = self.g.afficherImage(200-((200-end_1_x)*i/10),300-((300-end_1_y)*i/10),image_1_path, 200 - i*15, 200 - i*15)
+                        image_2 = self.g.afficherImage(750-((750-end_2_x)*i/10),300-((300-end_2_y)*i/10),image_2_path, 200 - i*15, 200 - i*15)
+                        time.sleep(0.1)
+                        self.g.actualiser()
+                    break
+                elif o==image_2:
+                    pl1.append(ch[0])
+                    pl2.append(ch[1])
+                    ch=None
+                    for i in range(10):
+                        self.g.supprimer(image_1)
+                        self.g.supprimer(image_2)
+                        image_1 = self.g.afficherImage(200-((200-end_2_x)*i/10),300-((300-end_2_y)*i/10),image_1_path, 200 - i*15, 200 - i*15)
+                        image_2 = self.g.afficherImage(750-((750-end_1_x)*i/10),300-((300-end_1_y)*i/10),image_2_path, 200 - i*15, 200 - i*15)
+                        time.sleep(0.1)
+                        self.g.actualiser()
+                    break
+        if ch!=None:
+            print('pl1:',self.player1,'pl2:',self.player2)
+            auto=choice([1,2])
+            if auto==1:
+                pl1.append(ch[0])
+                pl2.append(ch[1])
+                for i in range(10):
+                    self.g.supprimer(image_1)
+                    self.g.supprimer(image_2)
+                    image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
+                                                   image_1_path, 200 - i * 15, 200 - i * 15)
+                    image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
+                                                   image_2_path, 200 - i * 15, 200 - i * 15)
+                    time.sleep(0.1)
+                    self.g.actualiser()
+            else:
+                pl1.append(ch[1])
+                pl2.append(ch[0])
+                for i in range(10):
+                    self.g.supprimer(image_1)
+                    self.g.supprimer(image_2)
+                    image_1 = self.g.afficherImage(250 - ((250 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
+                                                   image_1_path, 200 - i * 15, 200 - i * 15)
+                    image_2 = self.g.afficherImage(800 - ((800 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
+                                                   image_2_path, 200 - i * 15, 200 - i * 15)
+                    time.sleep(0.1)
+                    self.g.actualiser()
+        print('pl1:',self.player1,'pl2:',self.player2)
+
+
+
+
     def distribute_draft(self):
+        self.g.afficherImage(0, 0, 'distri_page.jpg',1200,600)
+        pool1=self.pk_legend.sample(n=10)
+        pool2=self.pk_normal.sample(n=90)
+        for i in range(5):
+            if i % 2 == 0:
+                self.choose(pool1, self.player1, self.player2,100+i*20,10,1100-i*20,10)
+            else:
+                self.choose(pool1, self.player2, self.player1,1100-i*20,10,100+i*20,10)
+        for i in range(45):
+            if i % 2 == 0:
+                self.choose(pool2, self.player1, self.player2,100,40+i*20,1100,40+i*20)
+            else:
+                self.choose(pool2, self.player2, self.player1,1100,40+i*20,100,40+i*20)
+        print(self.player1,self.player2)
+        t_1=self.g.afficherTexte(600,500,'submit')
+        clic=self.g.attendreClic()
+        x=self.g.recupererClic(clic.x,clic.y)
+        if x==t_1:
+            self.g.fermerFenetre()
 
 
-        return None
 
 
     def superclean(self):
