@@ -1,7 +1,9 @@
 import os
 from PIL import Image
 import pandas as pds
-
+from tkiteasy import *
+import time
+'''
 def load_image_by_name(folder_path, image_name):
     """
     从指定文件夹中调取对应名字的图片。
@@ -34,5 +36,12 @@ names = pds.read_csv("pokemon.csv")
 lst=names["Name"]
 for i in lst:# 替换为目标图片名称
     image = load_image_by_name(folder, i)
+'''
 
-
+g=ouvrirFenetre(1000,1000)
+img=g.afficherImage(900,900,"atk_bug.png",20,20)
+for i in range (100):
+    g.supprimer(img)
+    img=g.afficherImage(90-i*10,90-i*10,"atk_bug.png",20-i,20-i)
+    time.sleep(0.1)
+    g.actualiser()

@@ -26,6 +26,7 @@ def get_input():
     user_input = int(input())
 
 def choose(pool,pl1,pl2):
+    print(pool.shape[0])
     ch = pool.sample(n=2, random_state=42)
     #we choose 2 poke in the pool
     pool = pool.drop(ch.index, inplace=True)
@@ -76,7 +77,7 @@ def random_draft(pool_legend,pool_normal):
     return player_1.index,player_2.index
 
 
-print(random_draft(pool_legend,pool_normal))
+print(main_draft())
 
 
 
