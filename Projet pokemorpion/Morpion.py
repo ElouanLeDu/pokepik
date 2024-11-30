@@ -2,7 +2,7 @@ import time
 import numpy as np
 from tkiteasy import *
 import math
-from Combat import combat_de_pokemon
+from combat import combat_de_pokemon
 import pandas as pds
 from PIL import Image, ImageTk
 import os
@@ -95,6 +95,9 @@ class Morpion:
 
     #jeu simple avec deux joueurs
     def start(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load("Morpion_msc.mp3")
+        pygame.mixer.music.play(-1)
         self.afficher_morpion()
         #le joueur qui commence
         j = 1
@@ -148,6 +151,7 @@ class Morpion:
                             self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 except :
                     continue
+        pygame.mixer.music.stop()
 
 
     def eval_petit(self,mat):#cette fonction evalue un morpion de base
@@ -433,6 +437,7 @@ class Morpion:
                 elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                     self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 self.g.actualiser()
+        pygame.mixer.music.stop()
 
     def start_poke(self):
         self.afficher_poke()
@@ -549,6 +554,7 @@ class Morpion:
 
                 except :
                     continue
+        pygame.mixer.music.stop()
 
 
 
