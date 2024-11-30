@@ -2,7 +2,7 @@ import time
 import numpy as np
 from tkiteasy import *
 import math
-from Combat import Combat_de_pokemon
+from Combat import combat_de_pokemon
 import pandas as pds
 from PIL import Image, ImageTk
 import os
@@ -27,7 +27,7 @@ class Morpion:
         self.df = pds.read_csv('pokemon_modified.csv')
         poke = self.df.sample(n=120)
         self.deck = [poke[60:],poke[:60]]
-        self.combat = Combat_de_pokemon(self.g)
+        self.combat = combat_de_pokemon(self.g,self.df)
         self.asso_poke = {}
         self.co_to_poke = {}
         self.name_to_poke = {}
@@ -471,7 +471,7 @@ class Morpion:
 
                                 poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
 
-                                # resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
+                                resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
                                 resultat = (self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
 
                                 """choisir un pokemon contre qui il combattra"""
@@ -553,8 +553,8 @@ class Morpion:
 
 
 
-g = ouvrirFenetre(1200,600)
-jeu = Morpion(g)
-# jeu.start_ia()
-# jeu.start()
-jeu.start_poke()
+# g = ouvrirFenetre(1200,600)
+# jeu = Morpion(g)
+# # jeu.start_ia()
+# # jeu.start()
+# jeu.start_poke()
