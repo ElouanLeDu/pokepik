@@ -202,7 +202,7 @@ class combat_de_pokemon ():
         self.g.supprimer(img)
         self.g.delete(win)
         self.g.supprimer(textwin)
-
+        print(f"{ObjetGraphique.annuaire} ObjetGraphique.annuaire de combat")
         pygame.mixer.music.stop()
         return (winner,looser)
 
@@ -317,9 +317,11 @@ class combat_de_pokemon ():
     def fin(self):
         self.g.attendreClic()
         self.g.fermerFenetre()
-# poke1='DeoxysNormal Forme'
+
+# poke1='Charizard'
 # poke2='Venusaur'
 # g=ouvrirFenetre(1200,600)
-# C=combat_de_pokemon(g)
+# df = pds.read_csv('pokemon_modified.csv',index_col='Name')
+# C=combat_de_pokemon(g,df)
 # C.combat(poke1,poke2)
 # C.fin()
