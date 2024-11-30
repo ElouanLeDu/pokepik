@@ -1,20 +1,14 @@
-import numpy as np
+from importlib.metadata import Distribution
+
 import pandas as pds
-import random
 from tkiteasy import *
-import os
-from time import time
-import matplotlib.pyplot as pyplt
-import requests
-from PIL import Image, ImageTk
-import tkinter as tk
-from io import BytesIO
 import tkinter as tk
 from tkinter import messagebox
 import pygame
 from Morpion import Morpion
 from combat import combat_de_pokemon
-import time
+from distribute import Distri
+
 
 
 # Début du programme :
@@ -28,8 +22,11 @@ class Pokemorpion():
         self.g.afficherImage(0, 0, "fond_entree.png")
         self.jeu=Morpion(self.g)
         self.fight=combat_de_pokemon(self.g,self.df)
+        self.distri=Distri(self.g,self.df)
         self.poke1 = ""
         self.poke2 = ""
+        self.deck1=[]
+        self.deck2=[]
 
 
 
@@ -140,7 +137,7 @@ class Pokemorpion():
                 self.g.afficherImage(0, 0, "fond_morpion.jpg")
                 self.jeu.start_ia()
                 self.g.attendreClic()
-                #x = self.g.recupererObjet(clic.x, clic.y)
+
 
             if x == self.combat:
                 self.poke1=""
@@ -152,26 +149,34 @@ class Pokemorpion():
 
 
             if x==self.draft:
+
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
+
+                self.distri.distribute_draft()
 
                 self.g.attendreClic()
 
 
             if x == self.pvp:
-                self.g.afficherImage(0, 0, "fond_morpion.jpg")
+                pygame.mixer.music.stop()
+                self.g.supprimerTout()
+                self.g.afficherImage(0, 0, "fond_morpion.jpg", 1200,600)
                 self.jeu.start()
                 self.g.attendreClic()
 
 
             if x==self.random_deck:
+
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
 
-
+                self.distri.distribute_random()
                 self.g.attendreClic()
 
             if x == self.pve:
+                pygame.mixer.music.stop()
+                self.g.supprimerTout()
                 self.g.afficherImage(0, 0, "fond_morpion.jpg")
                 self.jeu.start_ia()
                 self.g.attendreClic()
