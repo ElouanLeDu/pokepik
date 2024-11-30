@@ -2,6 +2,12 @@ import time
 import numpy as np
 from tkiteasy import *
 import math
+from Combat import Combat_de_pokemon
+import pandas as pds
+from PIL import Image, ImageTk
+import os
+import tkinter as tk
+
 
 
 class Morpion:
@@ -18,6 +24,26 @@ class Morpion:
             (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]
 
         self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
+        self.df = pds.read_csv('pokemon_modified.csv')
+        poke = self.df.sample(n=120)
+        self.deck = [poke[60:],poke[:60]]
+        self.combat = Combat_de_pokemon(self.g)
+        self.asso_poke = {}
+        self.co_to_poke = {}
+        self.name_to_poke = {}
+
+
+    def afficher_poke(self):
+        for j in range(2) :
+            for i in range(60):
+                poke = self.g.afficherImage(53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6),f"pokemon_images/{self.deck[j].iloc[i]["Name"]}.png",43,43)
+                if j == 0 :
+                    joueur = 1
+                else:
+                    joueur = -1
+                self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j].iloc[i]["Name"], "joueur": joueur, "dispo" : True }
+                self.name_to_poke[self.deck[j].iloc[i]["Name"]] = poke
+
 
     def afficher_grille(self):
         for y in [225, 375]:
@@ -368,7 +394,6 @@ class Morpion:
                                     if self.mat[x][y][x1][y1]==0:
                                         nb_coup_possible += 1
                 coup_ia = self.minimax(self.mat,prochain_coup,min(4 ,nb_coup_possible),-math.inf,math.inf,True)
-                print(coup_ia)
                 self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = -1
 
                 centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
@@ -410,38 +435,88 @@ class Morpion:
                 self.g.actualiser()
 
     def start_poke(self):
+        self.afficher_poke()
         self.afficher_morpion()
+
         #le joueur qui commence
         j = 1
+        rectangle = self.g.dessinerRectangle(10000,10000,43,43,"red")
+        rectangle1 = self.g.dessinerRectangle(10000,10000,43,43,"blue")
+        self.g.placerAuDessous(rectangle1)
+        self.g.placerAuDessous(rectangle)
+
         prochain_coup = -1
+        poke_choisi = None
         while not self.fin:
             clic = self.g.recupererClic()
             touche = self.g.recupererTouche()
             if clic :
                 try :
                     objet = self.g.recupererObjet(clic.x, clic.y)
-                    if objet in self.dic_asso and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0 and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0 and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j :
+                    if objet in self.asso_poke and self.asso_poke[objet]["dispo"] and self.asso_poke[objet]["joueur"] == j:
+                        if j == 1 :
+                            obj =rectangle
+                        else :
+                            obj = rectangle1
+                        self.g.deplacer(obj,self.asso_poke[objet]["co"][0]-obj.x,self.asso_poke[objet]["co"][1] - obj.y)
+                        poke_choisi = objet
+
+                    if (poke_choisi and self.asso_poke[poke_choisi]["dispo"] and objet in self.dic_asso
+                            and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0
+                            and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0
+                            and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j) :
 
                         if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
                             if self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == -j :
 
+                                poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
+
+                                # resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
+                                resultat = (self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
+
                                 """choisir un pokemon contre qui il combattra"""
                                 """lancez combat et afficher le vainceur"""
+                                #faut juste enlever le carré qu'il y'a derriere redessiner un carré noir par dessus parce que flemme
 
-                                self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
-                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
-                                if j == 1:
+
+                                winner = self.name_to_poke[resultat[0]]
+                                loser = self.name_to_poke[resultat[1]]
+
+                                self.asso_poke[winner]["dispo"] = False
+                                self.asso_poke[loser]["dispo"] = True
+
+                                self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
+                                self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
+
+                                if j == self.asso_poke[winner]["joueur"]:
                                     self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
 
-                                elif j == -1:
+                                else:
                                     self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
 
+                                self.g.supprimer(winner)
+                                self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
+
                             else :
+                                self.g.deplacer(poke_choisi, objet.x - poke_choisi.x + 1,objet.y - poke_choisi.y + 1)
+                                if j == 1 :
+                                    col = "red"
+                                else :
+                                    col = "blue"
+                                self.g.dessinerRectangle(poke_choisi.x ,poke_choisi.y , 44,44,col)
 
-                                """choisir et placez un pokemon"""
-
+                                self.g.placerAuDessus(poke_choisi)
+                                self.asso_poke[poke_choisi]["dispo"] = False
+                                self.asso_poke[poke_choisi]["co_mat"] = (self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])
+                                self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])] = poke_choisi
+                                self.dic_asso[poke_choisi] = (self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
 
+                            if j == 1:
+                                obj = rectangle
+                            else:
+                                obj = rectangle1
+                            self.g.deplacer(obj, 10000, 10000)
                             j = -j
 
                             #juste pour l'effet de surbrillance
@@ -477,7 +552,9 @@ class Morpion:
 
 
 
-# g = ouvrirFenetre(1200,600)
-# jeu = Morpion(g)
+
+g = ouvrirFenetre(1200,600)
+jeu = Morpion(g)
 # jeu.start_ia()
 # jeu.start()
+jeu.start_poke()
