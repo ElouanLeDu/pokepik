@@ -92,7 +92,7 @@ class Pokemorpion():
 
 
     def valider_joueurs(self):
-        """Valider les noms des Pokémon et lancer le combat si les noms sont valides."""
+        #Valider les noms des Pokémon et lancer le combat si les noms sont valides.
         # Récupérer les noms des Pokémon saisis
         self.poke1 = self.entree_joueur1.get()
         self.poke2 = self.entree_joueur2.get()
@@ -120,8 +120,6 @@ class Pokemorpion():
         self.entree_joueur1.destroy()
         self.g.actualiser()
 
-        #self.g.afficherImage(-50, 0, "poke_stadium.png")
-        #self.fight.combat(self.poke1, self.poke2)
         self.g.quit()  # Fermer la boucle Tkinter pour continuer le programme
 
     def menu(self):  # menu principal, appel des fonctions et gestion des fonctionnalites
@@ -138,7 +136,7 @@ class Pokemorpion():
             clic = self.g.attendreClic()
             x = self.g.recupererObjet(clic.x, clic.y)
 
-            if x == self.eve:
+            if x == self.eve: #affichage pour chaque mode de jeu
                 self.g.afficherImage(0, 0, "fond_morpion.jpg")
                 self.jeu.start_ia()
                 self.g.attendreClic()
@@ -183,13 +181,6 @@ class Pokemorpion():
                 self.fin()
 
 
-
-
-
-    def superclean(self):
-        self.g.supprimerTout()  # suppression de tous les éléments graphiques et restauration de certains
-        self.q = self.g.afficherTexte("Quitter le jeu", 500, 540, "white", 15)
-        self.g.afficherImage(0, 0, "fond_menu.jpg")
 
     def fin(self):
         self.g.fermerFenetre()  # fin de partie

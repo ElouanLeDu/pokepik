@@ -1,14 +1,8 @@
-import numpy as np
 import pandas as pds
 import random
-from tkiteasy import *
 import os
 from time import time
-import matplotlib.pyplot as pyplt
-import requests
 from PIL import Image, ImageTk
-import tkinter as tk
-from io import BytesIO
 import pygame
 import time
 class combat_de_pokemon ():
@@ -138,6 +132,7 @@ class combat_de_pokemon ():
             defenseur = l[(i+1)%2]
         tour=1
 
+        #Texte début de combat
         x,y,z=self.g.afficherTexte(cleaned_name1,490,160,col_poke1,25),self.g.afficherTexte('VS',600,180,'white',25),self.g.afficherTexte(cleaned_name2,724,180,col_poke2,25)
         self.g.actualiser()
         self.g.attendreClic()
@@ -145,7 +140,7 @@ class combat_de_pokemon ():
         self.g.supprimer(y)
         self.g.supprimer(z)
 
-        while self.df.loc[poke1,'HP']>0 and self.df.loc[poke2,'HP']>0 :
+        while self.df.loc[poke1,'HP']>0 and self.df.loc[poke2,'HP']>0 : #boucle tant que les deux pokemons sont en vie
             #actualisation tour et barres de vie
             t=self.g.afficherTexte(f'\n tour {tour}',600,30,'white',22)
 
@@ -153,9 +148,12 @@ class combat_de_pokemon ():
             a=self.g.afficherTexte(f'{self.cleaner[attaquant]} attaque !', 600,195,'white',25)
             self.g.attendreClic()
             self.g.supprimer(a)
+
+            #actualisation dégâts et attaquant
             self.degats(attaquant, defenseur)
             attaquant, defenseur = defenseur, attaquant
 
+            #actualisation tour
             self.g.supprimer(t)
             tour +=1
 
@@ -189,11 +187,11 @@ class combat_de_pokemon ():
 
         #gestion musique
         pygame.mixer.music.stop()  # Arrêter la musique à la fin
-        pygame.mixer.init()
+        pygame.mixer.init()        # démarrer musique de fin
         pygame.mixer.music.load("Fin.mp3")
         pygame.mixer.music.play(-1)
 
-
+        #affichage gagnat
         textwin=self.g.afficherTexte(f"\n{self.cleaner[winner]} remporte\n      le combat !",600,185,'white',25)
         imgwin = self.get_pokemon_image(winner)
         win=self.g.create_image(505, 351, image=imgwin, anchor="nw")
@@ -247,13 +245,18 @@ class combat_de_pokemon ():
             self.g.actualiser()
 
     def animation_atk(self,attaquant,defenseur):
+
+        #attaque avec la sphère de l'attaquant
         img_atk = self.redimenssioner_img(self.energie_ball[attaquant], 100, 100)
         attack_sphere = self.g.create_image(self.pos[attaquant], 207, image=img_atk, anchor="nw")
-        for _ in range(30):
+
+        for _ in range(30): #progression de la sphère jusqu'au défenseur
             self.g.deplacer_img(attack_sphere, (self.pos[defenseur] - self.pos[attaquant]) // 30, 0)
             time.sleep(0.03)
             self.g.actualiser()
+
         self.g.delete(attack_sphere)
+
         for _ in range(4):  # 4 cycles de vibrations
             self.g.deplacer_img(self.img[defenseur], 10, 0)
             self.g.actualiser()
@@ -263,16 +266,13 @@ class combat_de_pokemon ():
             time.sleep(0.03)
 
     def cleaned_name(self,mot):
-        """
-        Retourne une chaîne formatée :
-        - Si le mot contient un espace, chaque partie est séparée par '\n'.
-        - Sinon, retourne le mot en entier.
-        """
+        #faire un retour ligne pour chaque espace dans le noms des pokemons pour un affichage propre
+
         if ' ' in mot:
             return '\n'.join(mot.split(' '))
         else:
             return mot
-    def get_color_for_type(self,type):
+    def get_color_for_type(self,type): #dico type couleur,sphère énérgie
         color_map = {
             "Bug": ("green","atk_bug.png"),
             "Dark": ("black","atk_dark.png"),

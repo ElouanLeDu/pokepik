@@ -321,7 +321,7 @@ class Morpion:
 
     def start_ia(self):
         pygame.mixer.init()
-        pygame.mixer.music.load("Morpion_msc.mp3")
+        pygame.mixer.music.load("PVE.mp3")
         pygame.mixer.music.play(-1)
         self.afficher_morpion()
         j = 1
