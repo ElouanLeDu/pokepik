@@ -24,7 +24,7 @@ class Morpion:
             (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]
 
         self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
-        self.df = pds.read_csv('pokemon_modified.csv')
+        self.df = pds.read_csv('pokemon_modified.csv', index_col="Name")
         poke = self.df.sample(n=120)
         self.deck = [poke[60:],poke[:60]]
         self.combat = combat_de_pokemon(self.g,self.df)
@@ -36,13 +36,14 @@ class Morpion:
     def afficher_poke(self):
         for j in range(2) :
             for i in range(60):
-                poke = self.g.afficherImage(53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6),f"pokemon_images/{self.deck[j].iloc[i]["Name"]}.png",43,43)
+
+                poke = self.g.afficherImage(53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6),f"pokemon_images/{self.deck[j].index[i]}.png",43,43)
                 if j == 0 :
                     joueur = 1
                 else:
                     joueur = -1
-                self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j].iloc[i]["Name"], "joueur": joueur, "dispo" : True }
-                self.name_to_poke[self.deck[j].iloc[i]["Name"]] = poke
+                self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j].index[i], "joueur": joueur, "dispo" : True }
+                self.name_to_poke[self.deck[j].index[i]] = poke
 
 
     def afficher_grille(self):
@@ -95,9 +96,6 @@ class Morpion:
 
     #jeu simple avec deux joueurs
     def start(self):
-        pygame.mixer.init()
-        pygame.mixer.music.load("Morpion_msc.mp3")
-        pygame.mixer.music.play(-1)
         self.afficher_morpion()
         #le joueur qui commence
         j = 1
@@ -151,7 +149,6 @@ class Morpion:
                             self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 except :
                     continue
-        pygame.mixer.music.stop()
 
 
     def eval_petit(self,mat):#cette fonction evalue un morpion de base
@@ -437,7 +434,6 @@ class Morpion:
                 elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                     self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 self.g.actualiser()
-        pygame.mixer.music.stop()
 
     def start_poke(self):
         self.afficher_poke()
@@ -477,21 +473,22 @@ class Morpion:
                                 poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
 
                                 resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
-                                resultat = (self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
-
                                 """choisir un pokemon contre qui il combattra"""
                                 """lancez combat et afficher le vainceur"""
                                 #faut juste enlever le carré qu'il y'a derriere redessiner un carré noir par dessus parce que flemme
 
-
                                 winner = self.name_to_poke[resultat[0]]
                                 loser = self.name_to_poke[resultat[1]]
+                                print(loser)
+                                print(winner)
 
                                 self.asso_poke[winner]["dispo"] = False
                                 self.asso_poke[loser]["dispo"] = True
 
                                 self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
+
+                                self.g.dessinerRectangle(objet.x,objet.y,44,44,"black")
 
                                 if j == self.asso_poke[winner]["joueur"]:
                                     self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
@@ -552,13 +549,13 @@ class Morpion:
                         elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                             self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
 
-                except :
+                except Exception as e:
+                    print(e)
                     continue
-        pygame.mixer.music.stop()
 
 
 
-
+#
 # g = ouvrirFenetre(1200,600)
 # jeu = Morpion(g)
 # # jeu.start_ia()

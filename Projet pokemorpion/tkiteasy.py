@@ -191,6 +191,7 @@ class Canevas(tk.Canvas):
         ido = self.find_overlapping(x, y, x, y)
         if not ido:
             return None
+
         return ObjetGraphique.annuaire[ido[-1]]
 
 ################################################################################
