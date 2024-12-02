@@ -174,7 +174,7 @@ class combat_de_pokemon ():
 
         #réinitialisation des stats du perdant + montée de niveau par rapport à la durée du combat
         self.df.loc[looser, "HP"], self.df.loc[looser, "Attack"] = stats_origin[looser]["HP"], stats_origin[looser]["Attack"]
-        self.df.loc[attaquant,'Niveau']+=tour//2
+        self.df.loc[looser,'Niveau']+=tour
 
         #suppression des objets
         self.g.supprimer(poke1_hp_bar)

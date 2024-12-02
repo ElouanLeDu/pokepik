@@ -3,7 +3,8 @@ from tkiteasy import *
 import time
 import os
 import pandas as pds
-import choice
+from random import choice
+import pygame
 
 class Distri () :
 
@@ -29,8 +30,11 @@ class Distri () :
             print(f"can't find {pokemon_name} in pokemon_images ")
 
     def distribute_random(self):  # random distribute
+        pygame.mixer.init()
+        pygame.mixer.music.load("music_distri.mp3")
+        pygame.mixer.music.play(-1)
         self.g.afficherImage(0, 0, "fond_distri.jpg", 1200, 600)
-        submit = self.g.afficherTexte('submit', 600, 300, 'black', 25)
+        submit = self.g.afficherImage(525, 240, "bouton_submit.png")
         self.g.actualiser()
         pool_1 = self.pk.loc[(self.pk['Total'] <= 550) & (self.pk['Total'] > 450)]
         pool_2 = self.pk.loc[(self.pk['Total'] <= 360) & (self.pk['Total'] > 270)]
@@ -73,8 +77,13 @@ class Distri () :
             self.g.actualiser()
         clic = self.g.attendreClic()
         x = self.g.recupererObjet(clic.x, clic.y)
-        if x == submit:
-            self.g.supprimerTout()
+        while x != submit:
+            clic = self.g.attendreClic()
+            x = self.g.recupererObjet(clic.x, clic.y)
+        pygame.mixer.music.stop()
+
+        return (self.player1,self.player2)
+
 
     def choose(self, pool, pl1, pl2, end_1_x, end_1_y, end_2_x, end_2_y):
         time_start = time.time()
@@ -91,7 +100,7 @@ class Distri () :
         image_2 = self.g.afficherImage(750, 300, image_2_path, 200, 200)
         total_1 = self.g.afficherTexte(f'Total: {self.pk.loc[ch[0], 'Total']}', 300, 250, 'black')
         total_2 = self.g.afficherTexte(f'Total: {self.pk.loc[ch[1], 'Total']}', 900, 250, 'black')
-        while time_now <= time_start + 10:
+        while time_now <= time_start + 7:
             time_now = time.time()
             t = self.g.afficherTexte(f"time:{int(time_start + 10 - time_now)}", 600, 150, 'red', 20)
             clic = self.g.recupererClic()
@@ -113,7 +122,7 @@ class Distri () :
                         image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10),
                                                        300 - ((300 - end_2_y) * i / 10), image_2_path, 200 - i * 15,
                                                        200 - i * 15)
-                        time.sleep(0.1)
+                        time.sleep(0.0001)
                         self.g.actualiser()
                     break
                 elif o == image_2:
@@ -131,7 +140,7 @@ class Distri () :
                         image_2 = self.g.afficherImage(750 - ((750 - end_1_x) * i / 10),
                                                        300 - ((300 - end_1_y) * i / 10), image_2_path, 200 - i * 15,
                                                        200 - i * 15)
-                        time.sleep(0.1)
+                        time.sleep(0.0001)
                         self.g.actualiser()
                     break
         if ch != None:
@@ -149,7 +158,7 @@ class Distri () :
                                                    image_1_path, 200 - i * 15, 200 - i * 15)
                     image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
                                                    image_2_path, 200 - i * 15, 200 - i * 15)
-                    time.sleep(0.1)
+                    time.sleep(0.0001)
                     self.g.actualiser()
             else:
                 pl1.append(ch[1])
@@ -163,11 +172,14 @@ class Distri () :
                                                    image_1_path, 200 - i * 15, 200 - i * 15)
                     image_2 = self.g.afficherImage(800 - ((800 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
                                                    image_2_path, 200 - i * 15, 200 - i * 15)
-                    time.sleep(0.1)
+                    time.sleep(0.0001)
                     self.g.actualiser()
         print('pl1:', self.player1, 'pl2:', self.player2)
 
     def distribute_draft(self):  # draft
+        pygame.mixer.init()
+        pygame.mixer.music.load("music_distri.mp3")
+        pygame.mixer.music.play(-1)
         self.g.afficherImage(0, 0, "fond_distri.jpg", 1200, 600)
         pool1 = self.pk_legend.sample(n=20)
         pool2 = self.pk_normal.sample(n=100)
@@ -199,4 +211,7 @@ class Distri () :
                     t = self.g.afficherTexte('Round player 2', 600, 250, 'black', 40)
                     self.choose(pool2, self.player2, self.player1, 1150, 40 + i * 20, 50, 40 + (i - 24) * 20)
                     self.g.supprimer(t)
-        print(self.player1, self.player2)
+        pygame.mixer.music.stop()
+        return (self.player1, self.player2)
+
+

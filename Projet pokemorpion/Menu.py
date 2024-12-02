@@ -172,7 +172,7 @@ class Pokemorpion():
                 self.g.supprimerTout()
 
                 self.distri.distribute_random()
-                self.g.attendreClic()
+
 
             if x == self.pve:
                 pygame.mixer.music.stop()
@@ -183,12 +183,11 @@ class Pokemorpion():
 
             if x == self.q:  # bouton pour quitter le jeu
                 pygame.mixer.music.stop()
-                self.fin()
+                stop=True
+                self.g.fermerFenetre()
 
 
 
-    def fin(self):
-        self.g.fermerFenetre()  # fin de partie
 
 
 P = Pokemorpion()
