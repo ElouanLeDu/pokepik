@@ -764,7 +764,6 @@ class Morpion:
 
                                     resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
 
-
                                     winner = self.name_to_poke[resultat[0]]
                                     loser = self.name_to_poke[resultat[1]]
 
@@ -777,16 +776,17 @@ class Morpion:
                                     self.g.dessinerRectangle(objet.x,objet.y,44,44,"black")
 
                                     if j == self.asso_poke[winner]["joueur"]:
-                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
 
                                     else:
-                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
+                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
 
                                     self.g.supprimer(winner)
                                     self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
 
                                 else :
                                     self.g.deplacer(poke_choisi, objet.x - poke_choisi.x + 1,objet.y - poke_choisi.y + 1)
+
                                     if j == 1 :
                                         col = "red"
                                     else :
@@ -836,6 +836,8 @@ class Morpion:
                             self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
                 except :
                     continue
+                self.g.actualiser()
+
             else :
                 nb_coup_possible = 0
                 for x in range(3):
@@ -858,7 +860,7 @@ class Morpion:
 
 
                     resultat = self.combat.combat(poke_choisi, adversaire)
-                    self.g.actualiser
+                    self.g.actualiser()
 
                     winner = self.name_to_poke[resultat[0]]
                     loser = self.name_to_poke[resultat[1]]
@@ -947,7 +949,7 @@ class Morpion:
                     self.asso_poke[poke_choisi]["dispo"] = False
                     self.asso_poke[poke_choisi]["co_mat"] = (coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])
                     self.co_to_poke[(coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])] = poke_choisi
-                    self.asso_poke[poke_choisi]["co_mat"] = (coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])
+                    self.dic_asso[poke_choisi] = (coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])
                     self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = j
 
                     if prochain_coup != -1:
@@ -978,15 +980,13 @@ class Morpion:
                     elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                         self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
 
-
-                print(self.mat)
-
                 j = 1
 
 
 
 g = ouvrirFenetre(1200,600)
 jeu = Morpion(g)
-jeu.start_ia()
+# jeu.start_ia()
 # jeu.start()
-# jeu.start_poke_ia()
+jeu.start_poke_ia()
+# jeu.start_poke()
