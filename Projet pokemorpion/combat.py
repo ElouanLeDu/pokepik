@@ -202,7 +202,6 @@ class combat_de_pokemon ():
         self.g.supprimer(img)
         self.g.delete(win)
         self.g.supprimer(textwin)
-        print(f"{ObjetGraphique.annuaire} ObjetGraphique.annuaire de combat")
         pygame.mixer.music.stop()
         return (winner,looser)
 

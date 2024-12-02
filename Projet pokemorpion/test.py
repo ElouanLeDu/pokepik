@@ -25,8 +25,9 @@ class Morpion:
 
         self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
         self.df = pds.read_csv('pokemon_modified.csv', index_col="Name")
-        poke = self.df.sample(n=120)
-        self.deck = [poke[60:],poke[:60]]
+        pokemon_list = self.df.sample(n=120).index.tolist()
+        self.deck = [pokemon_list[:60], pokemon_list[60:]]
+
         self.combat = combat_de_pokemon(self.g,self.df)
         self.asso_poke = {}
         self.co_to_poke = {}
@@ -37,13 +38,13 @@ class Morpion:
         for j in range(2) :
             for i in range(60):
 
-                poke = self.g.afficherImage(53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6),f"pokemon_images/{self.deck[j].index[i]}.png",43,43)
+                poke = self.g.afficherImage(53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6),f"pokemon_images/{self.deck[j][i]}.png",43,43)
                 if j == 0 :
                     joueur = 1
                 else:
                     joueur = -1
-                self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j].index[i], "joueur": joueur, "dispo" : True }
-                self.name_to_poke[self.deck[j].index[i]] = poke
+                self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j][i], "joueur": joueur, "dispo" : True }
+                self.name_to_poke[self.deck[j][i]] = poke
 
 
     def afficher_grille(self):
@@ -452,7 +453,6 @@ class Morpion:
             clic = self.g.recupererClic()
             if clic :
                 a = self.g.find_overlapping(clic.x, clic.y,clic.x, clic.y)
-                print(a[-1])
                 try :
                     objet = self.g.recupererObjet(clic.x, clic.y)
                 except :
@@ -461,7 +461,7 @@ class Morpion:
                     objet = self.g.recupererObjet(clic.x, clic.y)
                 if objet in self.asso_poke and self.asso_poke[objet]["dispo"] and self.asso_poke[objet]["joueur"] == j:
                     if j == 1 :
-                        obj =rectangle
+                        obj = rectangle
                     else :
                         obj = rectangle1
                     self.g.deplacer(obj,self.asso_poke[objet]["co"][0]-obj.x,self.asso_poke[objet]["co"][1] - obj.y)
@@ -550,13 +550,60 @@ class Morpion:
                     elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                         self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
 
+    def a_un_avantage(self, pokemon, adversaire_types):
+
+        types_pokemon = [self.df.loc[pokemon, "Type 1"], self.df.loc[pokemon, "Type 2"]]
+        for type_adv in adversaire_types:
+            if not pds.isna(type_adv):  # Vérifie que le type adverse existe
+                for type_pokemon in types_pokemon:
+                    if not pds.isna(type_pokemon) and type_adv in self.combat.dict_av.get(type_pokemon, []):
+                        return True
+        return False
+
+    def est_suffisant(self, pokemon, adversaire_stats):
+
+        stats_pokemon = self.df.loc[pokemon]
+        attaque_effective = max(
+            stats_pokemon["Attack"] - adversaire_stats["Defense"],
+            stats_pokemon["Sp. Atk"] - adversaire_stats["Sp. Def"]
+        )
+        return attaque_effective > 0 and stats_pokemon["Speed"] >= adversaire_stats["Speed"]
+
+    def choisir_pokemon(self, adversaire, ma_liste):
+
+        # Récupérer les stats de l'adversaire
+        adversaire_stats = self.df.loc[adversaire]
+        adversaire_types = [adversaire_stats["Type 1"], adversaire_stats["Type 2"]]
+
+        # Filtrer les Pokémon ayant un avantage de type
+        pokemon_avantage = [p for p in ma_liste if self.a_un_avantage(p, adversaire_types)]
+
+        # Si aucun Pokémon n'a un avantage, utiliser tous les Pokémon disponibles
+        pokemon_consideres = pokemon_avantage if pokemon_avantage else ma_liste
+
+        # Filtrer les Pokémon capables de gagner
+        pokemon_suffisants = [p for p in pokemon_consideres if self.est_suffisant(p, adversaire_stats)]
+
+        # Si aucun Pokémon ne peut gagner, retourner None
+        if not pokemon_suffisants:
+            ma_liste.sort(key=lambda p: (self.df.loc[p, "Attack"] + self.df.loc[p, "Sp. Atk"], self.df.loc[p, "Speed"]))
+            return ma_liste[-1]
+
+        # Trier les Pokémon capables de gagner par puissance croissante
+        pokemon_suffisants.sort(key=lambda p: (self.df.loc[p, "Attack"] + self.df.loc[p, "Sp. Atk"],self.df.loc[p, "Speed"]))
+        return pokemon_suffisants[0]  # Le plus faible capable de gagner
+
+    # def choisir_pokemon_case_vide(self):
 
 
-
-
-
-g = ouvrirFenetre(1200,600)
-jeu = Morpion(g)
-# jeu.start_ia()
-# jeu.start()
-jeu.start_poke()
+# g = ouvrirFenetre(1200,600)
+# jeu = Morpion(g)
+# # jeu.start_ia()
+# # jeu.start()
+# jeu.start_poke()
+# # poke1='Charizard'
+# # adversaire='Venusaur'
+# # adversaire_stats = jeu.df.loc[adversaire]
+# # adversaire_types = [adversaire_stats["Type 1"], adversaire_stats["Type 2"]]
+# # deck = ["Charmander","Sandshrew","Bulbasaur"]
+# # print(jeu.choisir_pokemon(adversaire,deck))
