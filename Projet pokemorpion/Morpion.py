@@ -569,6 +569,7 @@ class Morpion:
         attaque_effective = max(
             stats_pokemon["Attack"] - adversaire_stats["Defense"],
             stats_pokemon["Sp. Atk"] - adversaire_stats["Sp. Def"])
+
         return attaque_effective > 0 and stats_pokemon["Speed"] >= adversaire_stats["Speed"]
 
     def choisir_pokemon(self, adversaire, ma_liste):
@@ -578,15 +579,15 @@ class Morpion:
         adversaire_types = [adversaire_stats["Type 1"], adversaire_stats["Type 2"]]
 
         # Filtrer les Pokémon ayant un avantage de type
-        pokemon_avantage = [p for p in ma_liste if self.a_un_avantage(p, adversaire_types)]
+        pokemon_avantage = [poke for poke in ma_liste if self.a_un_avantage(poke, adversaire_types)]
 
         # Si aucun Pokémon n'a un avantage, utiliser tous les Pokémon disponibles
         pokemon_consideres = pokemon_avantage if pokemon_avantage else ma_liste
 
         # Filtrer les Pokémon capables de gagner
-        pokemon_suffisants = [p for p in pokemon_consideres if self.est_suffisant(p, adversaire_stats)]
+        pokemon_suffisants = [poke for poke in pokemon_consideres if self.est_suffisant(poke, adversaire_stats)]
 
-        # Si aucun Pokémon ne peut gagner, retourner None
+        # Si aucun Pokémon ne peut gagner, retourner le meilleur et soit il gagnera soit il montera de niveau tout benef
         if not pokemon_suffisants:
             ma_liste.sort(key=lambda p: (self.df.loc[p, "Attack"] + self.df.loc[p, "Sp. Atk"], self.df.loc[p, "Speed"]))
             return ma_liste[-1]
@@ -984,23 +985,8 @@ class Morpion:
 
 
 
-
-
-
-
-
-
-
-
-
 g = ouvrirFenetre(1200,600)
 jeu = Morpion(g)
-# jeu.start_ia()
+jeu.start_ia()
 # jeu.start()
-jeu.start_poke_ia()
-# poke1='Charizard'
-# adversaire='Venusaur'
-# adversaire_stats = jeu.df.loc[adversaire]
-# adversaire_types = [adversaire_stats["Type 1"], adversaire_stats["Type 2"]]
-# deck = ["Charmander","Sandshrew","Bulbasaur"]
-# print(jeu.choisir_pokemon(adversaire,deck))
+# jeu.start_poke_ia()
