@@ -43,19 +43,19 @@ class distribution():
         pool_4 = self.pk.loc[(self.pk['Total'] > 550)] # pool of 550<Total
         # divide all pokemons in 4 pool, according to their total value
         # all the number of each pool depends on the ratio of each range of pokemons' number in the whole dataset
-        pl1_pool_1 = pool_1.sample(n=25, random_state=42) # 'sample' is random choice in the dataframe
+        pl1_pool_1 = pool_1.sample(n=25) # 'sample' is random choice in the dataframe
         pool_1 = pool_1.drop(pl1_pool_1.index, inplace=False)
-        pl2_pool_1 = pool_1.sample(n=25, random_state=42)
+        pl2_pool_1 = pool_1.sample(n=25)
         # pool 1 of each player includes 25 pokemon
-        pl1_pool_2 = pool_2.sample(n=15, random_state=42)
+        pl1_pool_2 = pool_2.sample(n=15)
         pool_2 = pool_2.drop(pl1_pool_2.index, inplace=False)
-        pl2_pool_2 = pool_2.sample(n=15, random_state=42)
+        pl2_pool_2 = pool_2.sample(n=15)
         # pool 1 of each player includes 15 pokemon
-        pl1_pool_3 = pool_3.sample(n=10, random_state=42)
+        pl1_pool_3 = pool_3.sample(n=10)
         pool_3 = pool_3.drop(pl1_pool_3.index, inplace=False)
-        pl2_pool_3 = pool_3.sample(n=10, random_state=42)
+        pl2_pool_3 = pool_3.sample(n=10)
         # pool 1 of each player includes 10 pokemon
-        pl1_pool_4 = pool_4.sample(n=10, random_state=42)
+        pl1_pool_4 = pool_4.sample(n=10)
         pool_4 = pool_4.drop(pl1_pool_4.index, inplace=False)
         pl2_pool_4 = pool_4.sample(n=10, random_state=42)
         # pool 1 of each player includes 10 pokemon
@@ -251,5 +251,5 @@ class distribution():
 
 g=ouvrirFenetre(1200,600)
 d=distribution(g)
-d.distribute_draft()
-#d.distribute_random()
+#d.distribute_draft()
+d.distribute_random()
