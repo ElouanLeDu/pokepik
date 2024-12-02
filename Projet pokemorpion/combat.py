@@ -5,6 +5,7 @@ from time import time
 from PIL import Image, ImageTk
 import pygame
 import time
+from tkiteasy import *
 class combat_de_pokemon ():
 
     def __init__(self, g,df):
@@ -201,7 +202,6 @@ class combat_de_pokemon ():
         self.g.supprimer(img)
         self.g.delete(win)
         self.g.supprimer(textwin)
-
         pygame.mixer.music.stop()
         return (winner,looser)
 
@@ -312,3 +312,15 @@ class combat_de_pokemon ():
         return ( ImageTk.PhotoImage(image_resized))
 
 
+
+    def fin(self):
+        self.g.attendreClic()
+        self.g.fermerFenetre()
+
+# poke1='Charizard'
+# poke2='Venusaur'
+# g=ouvrirFenetre(1200,600)
+# df = pds.read_csv('pokemon_modified.csv',index_col='Name')
+# C=combat_de_pokemon(g,df)
+# C.combat(poke1,poke2)
+# C.fin()

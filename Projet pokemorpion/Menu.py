@@ -2,6 +2,12 @@ from importlib.metadata import Distribution
 
 import pandas as pds
 from tkiteasy import *
+import os
+from time import time
+import matplotlib.pyplot as pyplt
+from PIL import Image, ImageTk
+import tkinter as tk
+from io import BytesIO
 import tkinter as tk
 from tkinter import messagebox
 import pygame
