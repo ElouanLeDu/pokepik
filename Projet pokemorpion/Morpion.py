@@ -25,6 +25,7 @@ class Morpion:
 
         self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
         self.df = pds.read_csv('pokemon_modified.csv', index_col="Name")
+
         pokemon_list = self.df.sample(n=120).index.tolist()
         self.deck = [pokemon_list[:60], pokemon_list[60:]]
 
