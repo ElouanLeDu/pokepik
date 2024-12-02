@@ -638,7 +638,5 @@ class combat_de_pokemon ():
 poke1='DeoxysNormal Forme'
 poke2='Venusaur'
 g=ouvrirFenetre(1200,600)
-C=combat_de_pokemon(g)
-C.combat(poke1,poke2)
-C.fin()
+c=distribution(g)
 
