@@ -1,4 +1,6 @@
 ####### Class distribution ######
+import traceback
+
 from tkiteasy import *
 import time
 import pandas as pds
@@ -31,7 +33,7 @@ class distribution():
             print(f"can't find {pokemon_name} in pokemon_images ")
 
     def distribute_random(self):  # random distribute
-        self.g.afficherImage(0, 0, 'distri_page.jpg', 1200, 600)
+        self.g.afficherImage(90, 0, 'distri_page.jpg', 1020, 600)
         submit = self.g.afficherTexte('submit', 600, 300, 'black', 25)
         # a button submit for backing to the main menu, it can be changed by a picture or other stuff
         self.g.actualiser()
@@ -69,15 +71,13 @@ class distribution():
             l1.append(self.get_pokemon_image(self.player1[i]))
             l2.append(self.get_pokemon_image(self.player2[i]))
             # l1 and l2 are used to conserve paths of images in self.player1 and self.player2
-        for n in range(30):
-            print(l1[n])
-            self.g.afficherImage(10, 40 * n, l1[n], 40, 40)
-            print(l1[n + 30])
-            self.g.afficherImage(110, 40 * n, l1[n + 30], 40, 40)
-            print(l2[n])
-            self.g.afficherImage(1100, 40 * n, l2[n], 40, 40)
-            print(l2[n + 30])
-            self.g.afficherImage(1000, 40 * n, l2[n + 30], 40, 40)
+        for n in range(20):
+            self.g.afficherImage(0, 30 * n, l1[n], 30, 30)
+            self.g.afficherImage(30, 30 * n, l1[n + 20], 30, 30)
+            self.g.afficherImage(60, 30 * n, l1[n + 40], 30, 30)
+            self.g.afficherImage(1110, 30 * n, l2[n], 30, 30)
+            self.g.afficherImage(1140, 30 * n, l2[n + 20], 30, 30)
+            self.g.afficherImage(1170, 30 * n, l2[n + 40], 30, 30)
             time.sleep(0.05)
             self.g.actualiser()
         # show images in 2 sides of menu
@@ -112,49 +112,54 @@ class distribution():
             # show the time
             clic = self.g.recupererClic()
             self.g.supprimer(t)
-            if clic != None: # if clic realised
-                o = self.g.recupererObjet(clic.x, clic.y) # we find the object of clic found
-                if o == image_1: # if we clic on the first image of pokemon
-                    pl1.append(ch[0])
-                    pl2.append(ch[1])
-                    # add
-                    self.g.supprimer(total_1)
-                    self.g.supprimer(total_2)
-                    # we delete text of Total
-                    ch = None
-                    # clear the list of 2 pokemons' names
-                    for i in range(10):
-                        self.g.supprimer(image_1)
-                        self.g.supprimer(image_2)
-                        image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10),
-                                                       300 - ((300 - end_1_y) * i / 10), image_1_path, 200 - i * 15,
-                                                       200 - i * 15)
-                        image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10),
-                                                       300 - ((300 - end_2_y) * i / 10), image_2_path, 200 - i * 15,
-                                                       200 - i * 15)
-                        # the movement of 2 image
-                        time.sleep(0.1)
-                        # time between 2 movements
-                        self.g.actualiser()
-                    break
-                elif o == image_2: # same methode as choose the first image, but we choose the second
-                    self.g.supprimer(total_1)
-                    self.g.supprimer(total_2)
-                    pl1.append(ch[0])
-                    pl2.append(ch[1])
-                    ch = None
-                    for i in range(10):
-                        self.g.supprimer(image_1)
-                        self.g.supprimer(image_2)
-                        image_1 = self.g.afficherImage(200 - ((200 - end_2_x) * i / 10),
-                                                       300 - ((300 - end_2_y) * i / 10), image_1_path, 200 - i * 15,
-                                                       200 - i * 15)
-                        image_2 = self.g.afficherImage(750 - ((750 - end_1_x) * i / 10),
-                                                       300 - ((300 - end_1_y) * i / 10), image_2_path, 200 - i * 15,
-                                                       200 - i * 15)
-                        time.sleep(0.1)
-                        self.g.actualiser()
-                    break
+            try:
+                if clic != None: # if clic realised
+                    o = self.g.recupererObjet(clic.x, clic.y) # we find the object of clic found
+                    if o == image_1: # if we clic on the first image of pokemon
+                        pl1.append(ch[0])
+                        pl2.append(ch[1])
+                        # add
+                        self.g.supprimer(total_1)
+                        self.g.supprimer(total_2)
+                        # we delete text of Total
+                        ch = None
+                        # clear the list of 2 pokemons' names
+                        for i in range(11):
+                            self.g.supprimer(image_1)
+                            self.g.supprimer(image_2)
+                            image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10),
+                                                           300 - ((300 - end_1_y) * i / 10), image_1_path, 200 - i * 17,
+                                                           200 - i * 17)
+                            image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10),
+                                                           300 - ((300 - end_2_y) * i / 10), image_2_path, 200 - i * 17,
+                                                           200 - i * 17)
+                            # the movement of 2 image
+                            time.sleep(0.1)
+                            # time between 2 movements
+                            self.g.actualiser()
+                        break
+                    elif o == image_2: # same methode as choose the first image, but we choose the second
+                        self.g.supprimer(total_1)
+                        self.g.supprimer(total_2)
+                        pl1.append(ch[0])
+                        pl2.append(ch[1])
+                        ch = None
+                        for i in range(11):
+                            self.g.supprimer(image_1)
+                            self.g.supprimer(image_2)
+                            image_1 = self.g.afficherImage(200 - ((200 - end_2_x) * i / 10),
+                                                           300 - ((300 - end_2_y) * i / 10), image_1_path, 200 - i * 17,
+                                                           200 - i * 17)
+                            image_2 = self.g.afficherImage(750 - ((750 - end_1_x) * i / 10),
+                                                           300 - ((300 - end_1_y) * i / 10), image_2_path, 200 - i * 17,
+                                                           200 - i * 17)
+                            time.sleep(0.1)
+                            self.g.actualiser()
+                        break
+            except KeyError as e:
+                if type(e)==int:
+                    print(e)
+
         if ch != None: # if we don't choose during 10 seconds:
             auto = choice([1, 2])
             # the computer choose random in the first and the second pokemon
@@ -167,9 +172,9 @@ class distribution():
                     self.g.supprimer(image_1)
                     self.g.supprimer(image_2)
                     image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
-                                                   image_1_path, 200 - i * 15, 200 - i * 15)
+                                                   image_1_path, 200 - i * 17, 200 - i * 17)
                     image_2 = self.g.afficherImage(750 - ((750 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
-                                                   image_2_path, 200 - i * 15, 200 - i * 15)
+                                                   image_2_path, 200 - i * 17, 200 - i * 17)
                     time.sleep(0.1)
                     self.g.actualiser()
             else: # if computer choose the 2nd image, we do the same movement as previous
@@ -181,45 +186,70 @@ class distribution():
                     self.g.supprimer(image_1)
                     self.g.supprimer(image_2)
                     image_1 = self.g.afficherImage(250 - ((250 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
-                                                   image_1_path, 200 - i * 15, 200 - i * 15)
+                                                   image_1_path, 200 - i * 17, 200 - i * 17)
                     image_2 = self.g.afficherImage(800 - ((800 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
-                                                   image_2_path, 200 - i * 15, 200 - i * 15)
+                                                   image_2_path, 200 - i * 17, 200 - i * 17)
                     time.sleep(0.1)
                     self.g.actualiser()
-        print('pl1:', self.player1, 'pl2:', self.player2)
 
     def distribute_draft(self):  # draft
-        self.g.afficherImage(0, 0, 'distri_page.jpg', 1200, 600)
+        self.g.afficherImage(90, 0, 'distri_page.jpg', 1020, 600)
         pool1 = self.pk_legend.sample(n=20) # the first pool is legend pokemon
         pool2 = self.pk_normal.sample(n=100) # the second pool is normal pokemon
         for i in range(10): # choose from the legend pool
             if i % 2 == 0: # player 1 to choose
                 t = self.g.afficherTexte('Round player 1', 600, 250, 'black', 40)
-                self.choose(pool1, self.player1, self.player2, 100 + i * 20, 10, 1100 - i * 20, 10)
+                if i>=9:
+                    self.choose(pool1, self.player1, self.player2, 0, 90, 1170,90)
+                else:
+                    if i % 3 == 0:
+                        self.choose(pool1, self.player1, self.player2, 0, 30*(i//3) , 1170,30*(i//3))
+                    elif i % 3 == 1:
+                        self.choose(pool1, self.player1, self.player2, 30, 30*(i//3), 1140,30*(i//3))
+                    else:
+                        self.choose(pool1, self.player1, self.player2, 60, 30*(i//3), 1110,30*(i//3))
                 self.g.supprimer(t)
             else:# player 2 to choose
                 t = self.g.afficherTexte('Round player 2', 600, 250, 'black', 40)
-                self.choose(pool1, self.player2, self.player1, 1100 - i * 20, 10, 100 + i * 20, 10)
+                if i >= 9:
+                    self.choose(pool1, self.player2, self.player1, 0, 90, 1170, 90)
+                else:
+                    if i % 3 == 0:
+                        self.choose(pool1, self.player2, self.player1, 1170, 30 * (i // 3), 0, 30 * (i // 3))
+                    elif i % 3 == 1:
+                        self.choose(pool1, self.player2, self.player1, 1140, 30 * (i // 3), 30, 30 * (i // 3))
+                    else:
+                        self.choose(pool1, self.player2, self.player1, 1110, 30 * (i // 3), 60, 30 * (i // 3))
                 self.g.supprimer(t)
-        for i in range(50):
+        for i in range(10,60):
             if i % 2 == 0: # player 1 to choose
                 # too many image of normal so we show images in 2 colones
-                if i < 25:
-                    t = self.g.afficherTexte('Round player 1', 600, 250, 'black', 40)
-                    self.choose(pool2, self.player1, self.player2, 100, 40 + i * 20, 1100, 40 + i * 20)
-                    self.g.supprimer(t)
+                t = self.g.afficherTexte('Round player 1', 600, 250, 'black', 40)
+                if i == 10:
+                    self.choose(pool2, self.player1, self.player2, 30, 90, 1140, 90)
                 else:
-                    t = self.g.afficherTexte('Round player 1', 600, 250, 'black', 40)
-                    self.choose(pool2, self.player1, self.player2, 50, 40 + i * 20, 1150, 40 + (i - 25) * 20)
-                    self.g.supprimer(t)
+                    if i % 3 == 0:
+                        self.choose(pool2, self.player1, self.player2, 0, 30 * (i // 3), 1170, 30 * (i // 3))
+                    elif i % 3 == 1:
+                        self.choose(pool2, self.player1, self.player2, 30, 30 * (i // 3), 1140, 30 * (i // 3))
+                    else:
+                        self.choose(pool2, self.player1, self.player2, 60, 30 * (i // 3), 1110, 30 * (i // 3))
+                self.g.supprimer(t)
             else: # player 1 to choose
-                if i < 25:
-                    t = self.g.afficherTexte('Round player 2', 600, 250, 'black', 40)
-                    self.choose(pool2, self.player2, self.player1, 1100, 40 + i * 20, 100, 40 + i * 20)
-                    self.g.supprimer(t)
+                t = self.g.afficherTexte('Round player 2', 600, 250, 'black', 40)
+                if i == 11:
+                    self.choose(pool2, self.player2, self.player1, 1110, 90, 60, 90)
                 else:
-                    t = self.g.afficherTexte('Round player 2', 600, 250, 'black', 40)
-                    self.choose(pool2, self.player2, self.player1, 1150, 40 + i * 20, 50, 40 + (i - 24) * 20)
-                    self.g.supprimer(t)
-        print(self.player1, self.player2)
+                    if i % 3 == 0:
+                        self.choose(pool2, self.player2, self.player1, 1170, 30 * (i // 3), 0, 30 * (i // 3))
+                    elif i % 3 == 1:
+                        self.choose(pool2, self.player2, self.player1, 1140, 30 * (i // 3), 30, 30 * (i // 3))
+                    else:
+                        self.choose(pool2, self.player2, self.player1, 1110, 30 * (i // 3), 60, 30 * (i // 3))
+                self.g.supprimer(t)
         self.g.supprimerTout() # back to the menu
+
+g=ouvrirFenetre(1200,600)
+d=distribution(g)
+d.distribute_draft()
+#d.distribute_random()
