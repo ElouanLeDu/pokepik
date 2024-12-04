@@ -103,8 +103,19 @@ class Morpion:
         j = 1
         prochain_coup = -1
         while not self.fin:
+
+            cpt = 0
+
+            for ligne in range(3):
+                for colonne in range(3):
+                    if self.main_mat[ligne][colonne] !=0 or all(x != 0 for y in self.mat[ligne][colonne] for x in y):
+                        cpt += 1
+            if cpt == 9:
+                return 0
+                self.fin=True
+
             clic = self.g.recupererClic()
-            touche = self.g.recupererTouche()
+
             if clic :
                 #l'utilisation de try est surtout utile pour voir si le clic ramene bien a un objet
                 try :
@@ -140,7 +151,10 @@ class Morpion:
                             elif win == 1 :
                                 image = "rond2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
-                            if abs(self.verif_win(self.main_mat)) == 1 :
+
+                            win_globale = self.verif_win(self.main_mat)
+                            if abs(win_globale) == 1 :
+                                return win_globale
                                 self.fin = True
 
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
@@ -349,6 +363,18 @@ class Morpion:
         prochain_coup = -1
         while not self.fin:
             if j == 1:
+
+                cpt = 0
+
+                for ligne in range(3):
+                    for colonne in range(3):
+                        if self.main_mat[ligne][colonne] != 0 or all(
+                                x != 0 for y in self.mat[ligne][colonne] for x in y):
+                            cpt += 1
+                if cpt == 9:
+                    return 0
+                    self.fin = True
+
                 clic = self.g.recupererClic()
                 if clic :
                     try :
@@ -375,15 +401,22 @@ class Morpion:
                                     image = "rond2.png"
                                 self.g.afficherImage(375 + self.dic_asso[objet][1] * 150,
                                                      75 + self.dic_asso[objet][0] * 150, image)
-                                if abs(self.verif_win(self.main_mat)) == 1:
+
+                                win_globale = self.verif_win(self.main_mat)
+                                if abs(win_globale) == 1:
+                                    if win_globale == -1 :
+                                        return 2
+                                    else :
+                                        return win_globale
                                     self.fin = True
-                            if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1:
+
+                        if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1:
                                 prochain_coup = -1
                                 for i in self.dico_surbrillance:
                                     self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
-                            elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
-                            self.g.actualiser()
+                        elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                        self.g.actualiser()
                     except :
                         continue
 
@@ -419,16 +452,16 @@ class Morpion:
                         image = "croix2.png"
                     elif win == 1:
                         image = "rond2.png"
-                    self.g.afficherImage(375 + coup_ia[1][1] * 150,
-                                         75 + coup_ia[1][0] * 150, image)
-                    if abs(self.verif_win(self.main_mat)) == 1:
+                    self.g.afficherImage(375 + coup_ia[1][1] * 150,75 + coup_ia[1][0] * 150, image)
+
+                    win_globale = self.verif_win(self.main_mat)
+                    if abs(win_globale) == 1:
                         if win == -1:
-                            image = "croix2.png"
-                        elif win == 1:
-                            image = "rond2.png"
-                        self.g.afficherImage(0,0,image)
-                        time.sleep(10)
+                            return 2
+                        else:
+                            return win_globale
                         self.fin = True
+
                 if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                     prochain_coup = -1
                     for i in self.dico_surbrillance:
@@ -445,13 +478,26 @@ class Morpion:
         j = 1
         rectangle = self.g.dessinerRectangle(10000,10000,43,43,"red")
         rectangle1 = self.g.dessinerRectangle(10000,10000,43,43,"blue")
+        stat = self.g.afficherTexte("",600,550,"white")
         self.g.placerAuDessous(rectangle1)
         self.g.placerAuDessous(rectangle)
 
         prochain_coup = -1
         poke_choisi = None
         while not self.fin:
+
+            cpt = 0
+
+            for ligne in range(3):
+                for colonne in range(3):
+                    if self.main_mat[ligne][colonne] != 0 or all(x != 0 for y in self.mat[ligne][colonne] for x in y):
+                        cpt += 1
+            if cpt == 9:
+                return 0
+                self.fin = True
+
             clic = self.g.recupererClic()
+
             if clic :
                 try:
                     a = self.g.find_overlapping(clic.x, clic.y,clic.x, clic.y)
@@ -466,6 +512,9 @@ class Morpion:
                             obj = rectangle
                         else :
                             obj = rectangle1
+                        name = self.asso_poke[objet]["name"]
+                        texte = "Attaque : " + str(self.df.loc[name,"Attack"]) + ", Defense : " + str(self.df.loc[name, "Defense"]) + ", HP : " + str(self.df.loc[name, "HP"]) + " Speed : " + str(self.df.loc[name,"Speed"])
+                        self.g.changerTexte(stat,texte)
                         self.g.deplacer(obj,self.asso_poke[objet]["co"][0]-obj.x,self.asso_poke[objet]["co"][1] - obj.y)
                         poke_choisi = objet
 
@@ -474,6 +523,7 @@ class Morpion:
                             and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0
                             and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j) :
 
+                        self.g.changerTexte(stat, "")
                         if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
                             if self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == -j :
 
@@ -499,7 +549,10 @@ class Morpion:
                                 else:
                                     self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
 
-                                self.g.supprimer(winner)
+                                try:
+                                    self.g.supprimer(winner)
+                                except:
+                                    continue
                                 self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
 
                             else :
@@ -542,7 +595,13 @@ class Morpion:
                             else :
                                 image = "croix2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
-                            if abs(self.verif_win(self.main_mat)) == 1 :
+
+                            win_globale = self.verif_win(self.main_mat)
+                            if abs(win_globale) == 1 :
+                                if win_globale == -1 :
+                                    return  2
+                                else :
+                                    return win_globale
                                 self.fin = True
 
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
@@ -598,7 +657,6 @@ class Morpion:
         return pokemon_suffisants[0]  # Le plus faible capable de gagner
 
     def coup_bloquant(self,mat,pos,j):
-        print(pos)
         mat[pos[0]][pos[1]] = -j
         if self.verif_win(mat) == j:
             mat[pos[0]][pos[1]] = 0
@@ -616,8 +674,7 @@ class Morpion:
         if profondeur <= 0 or abs(evalfin) > 5000:
             return {0: evalfin, 1: meilleur_coup}
 
-        if grille_active == -1 or self.verif_win(main_mat[grille_active[0]][grille_active[1]]) != 0 or all(
-                x != 0 for y in main_mat[grille_active[0]][grille_active[1]] for x in y):
+        if grille_active == -1 or self.verif_win(main_mat[grille_active[0]][grille_active[1]]) != 0 or all(x != 0 for y in main_mat[grille_active[0]][grille_active[1]] for x in y):
             grille_active = -1  # on peut jouer sur toute les grilles
 
         # on commence par le joueur maximisant
@@ -719,7 +776,6 @@ class Morpion:
 
             return {0: min_eval, 1: meilleur_coup}
 
-
     def start_poke_ia(self):
         self.afficher_poke()
         self.afficher_morpion()
@@ -730,10 +786,23 @@ class Morpion:
         rectangle1 = self.g.dessinerRectangle(10000,10000,43,43,"blue")
         self.g.placerAuDessous(rectangle1)
         self.g.placerAuDessous(rectangle)
+        stat = self.g.afficherTexte("", 600,550, "white")
 
         prochain_coup = -1
         poke_choisi = None
         while not self.fin:
+
+            cpt = 0
+
+            for ligne in range(3):
+                for colonne in range(3):
+                    if self.main_mat[ligne][colonne] != 0 or all(
+                            x != 0 for y in self.mat[ligne][colonne] for x in y):
+                        cpt += 1
+            if cpt == 9:
+                return 0
+                self.fin = True
+
             if j == 1 :
                 try:
                     clic = self.g.recupererClic()
@@ -750,6 +819,9 @@ class Morpion:
                                 obj = rectangle
                             else :
                                 obj = rectangle1
+                            name = self.asso_poke[objet]["name"]
+                            texte = "Attaque : " + str(self.df.loc[name, "Attack"]) + ", Defense : " + str(self.df.loc[name, "Defense"]) + ", HP : " + str(self.df.loc[name, "HP"]) + " Speed : " + str(self.df.loc[name, "Speed"])
+                            self.g.changerTexte(stat, texte)
                             self.g.deplacer(obj,self.asso_poke[objet]["co"][0]-obj.x,self.asso_poke[objet]["co"][1] - obj.y)
                             poke_choisi = objet
 
@@ -757,6 +829,8 @@ class Morpion:
                                 and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0
                                 and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0
                                 and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j) :
+
+                            self.g.changerTexte(stat, "")
 
                             if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
                                 if self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == -j :
@@ -782,7 +856,10 @@ class Morpion:
                                     else:
                                         self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
 
-                                    self.g.supprimer(winner)
+                                    try:
+                                        self.g.supprimer(winner)
+                                    except:
+                                        continue
                                     self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
 
                                 else :
@@ -826,7 +903,13 @@ class Morpion:
                             else :
                                 image = "croix2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
-                            if abs(self.verif_win(self.main_mat)) == 1 :
+
+                            win_global = self.verif_win(self.main_mat)
+                            if abs(win_global) == 1:
+                                if win_global == -1:
+                                    return 2
+                                else:
+                                    return win_global
                                 self.fin = True
 
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
@@ -849,15 +932,11 @@ class Morpion:
                                     if self.mat[x][y][x1][y1] == 0:
                                         nb_coup_possible += 1
                 coup_ia = self.minimax_poke(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf, True,self.mat_poke)
-                print(coup_ia)
 
                 if self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] == 1 :
                     a = self.co_to_poke[(coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])]
-                    print(a)
                     adversaire = self.asso_poke[a]["name"]
-                    print(adversaire)
                     poke_choisi = self.choisir_pokemon(adversaire,self.deck[1])
-                    print(f"{poke_choisi} poke choisi")
 
 
                     resultat = self.combat.combat(poke_choisi, adversaire)
@@ -876,14 +955,14 @@ class Morpion:
 
                     if j == self.asso_poke[winner]["joueur"]:
                         self.g.afficherImage(a.x + 2.5, a.y + 2.5, "rond.png")
-                        print(a.x + 2.5, a.y + 2.5)
 
                     else:
                         self.g.afficherImage(a.x + 2.5, a.y + 2.5, "croix.png")
-                        print(a.x + 2.5, a.y + 2.5)
 
-
-                    self.g.supprimer(winner)
+                    try:
+                        self.g.supprimer(winner)
+                    except:
+                        continue
                     self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
 
                     if prochain_coup != -1:
@@ -904,7 +983,13 @@ class Morpion:
                         else:
                             image = "croix2.png"
                         self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150, image)
-                        if abs(self.verif_win(self.main_mat)) == 1:
+
+                        win_globale = self.verif_win(self.main_mat)
+                        if abs(win_globale) == 1:
+                            if win_globale == -1:
+                                return 2
+                            else:
+                                return win_globale
                             self.fin = True
 
                     if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(
@@ -923,16 +1008,13 @@ class Morpion:
                     filtered_df = self.df.loc[deck]
                     sorted_df = filtered_df.sort_values(by=["Attack", "HP", "Sp. Atk", "Speed"], ascending=False)
                     deck_trie = sorted_df.index.tolist()
-                    print(deck_trie)
 
 
                     if self.coup_bloquant( self.mat[coup_ia[1][0]][coup_ia[1][1]],(coup_ia[1][2],coup_ia[1][3]), -1):
                         poke_choisi = deck_trie[-1]
                     else :
                         milieu = len(deck_trie)//2
-                        print(milieu)
                         poke_choisi = deck_trie[milieu]
-                        print(poke_choisi)
 
                     poke_choisi = self.name_to_poke[poke_choisi]
 
@@ -971,7 +1053,12 @@ class Morpion:
                         else:
                             image = "croix2.png"
                         self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150,image)
-                        if abs(self.verif_win(self.main_mat)) == 1:
+                        win_global = self.verif_win(self.main_mat)
+                        if abs(win_global) == 1:
+                            if win_global == -1 :
+                                return 2
+                            else:
+                                return win_global
                             self.fin = True
 
                     if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
@@ -983,11 +1070,267 @@ class Morpion:
 
                 j = 1
 
+    def start_poke_ia_vs_ia(self):
+        self.afficher_morpion()
+        self.afficher_poke()
+
+        # le joueur qui commence
+        j = 1
+
+        prochain_coup = -1
+        while not self.fin:
+
+            cpt = 0
+
+            for ligne in range(3):
+                for colonne in range(3):
+                    if self.main_mat[ligne][colonne] != 0 or all(
+                            x != 0 for y in self.mat[ligne][colonne] for x in y):
+                        cpt += 1
+            if cpt == 9:
+                return 0
+                self.fin = True
+
+            #debut jeu
+
+            nb_coup_possible = 0
+            for x in range(3):
+                for y in range(3):
+                    if self.verif_win(self.mat[x][y]) == 0:
+                        for x1 in range(3):
+                            for y1 in range(3):
+                                if self.mat[x][y][x1][y1] == 0:
+                                    nb_coup_possible += 1
+            if j == 1 :
+                joueur = False
+            else:
+                joueur = True
+
+            coup_ia = self.minimax_poke(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf,joueur, self.mat_poke)
+
+            if self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] == -j:
+                a = self.co_to_poke[(coup_ia[1][0], coup_ia[1][1], coup_ia[1][2], coup_ia[1][3])]
+                adversaire = self.asso_poke[a]["name"]
+                if j == 1 :
+                    indice = 0
+                else :
+                    indice = 1
+                poke_choisi = self.choisir_pokemon(adversaire, self.deck[indice])
+
+                resultat = self.combat.combat(poke_choisi, adversaire)
+                self.g.actualiser()
+
+                winner = self.name_to_poke[resultat[0]]
+                loser = self.name_to_poke[resultat[1]]
+
+                self.asso_poke[winner]["dispo"] = False
+                self.asso_poke[loser]["dispo"] = True
+
+                self.mat_poke[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = self.asso_poke[winner][
+                    "joueur"]
+                self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = self.asso_poke[winner][
+                    "joueur"]
+
+                self.g.dessinerRectangle(a.x, a.y, 44, 44, "black")
+
+                if j == self.asso_poke[winner]["joueur"]:
+                    self.g.afficherImage(a.x + 2.5, a.y + 2.5, "rond.png")
+
+                else:
+                    self.g.afficherImage(a.x + 2.5, a.y + 2.5, "croix.png")
+
+                try :
+                    self.g.supprimer(winner)
+                except :
+                    continue
+                self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
+
+                if prochain_coup != -1:
+                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
+                else:
+                    for i in self.dico_surbrillance:
+                        self.g.changerCouleur(self.dico_surbrillance[i], "black")
+
+                prochain_coup = (coup_ia[1][2], coup_ia[1][3])
+
+                win = self.verif_win(self.mat[coup_ia[1][0]][coup_ia[1][1]])
+                if abs(win) == 1:
+                    self.main_mat[coup_ia[1][0]][coup_ia[1][1]] = win
+                    self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1, 75 + coup_ia[1][0] * 150 + 1, 148, 148,
+                                             "black")
+                    if win == -1:
+                        image = "rond2.png"
+                    else:
+                        image = "croix2.png"
+                    self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150, image)
+
+                    win_globale = self.verif_win(self.main_mat)
+                    if abs(win_globale) == 1:
+                        return win_globale
+                        self.fin = True
+
+                if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(
+                        x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
+                    prochain_coup = -1
+                    for i in self.dico_surbrillance:
+                        self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+
+            else:
+                deck = []
+                for i in self.asso_poke:
+                    if self.asso_poke[i]["dispo"] and self.asso_poke[i]["joueur"] == j:
+                        deck.append(self.asso_poke[i]["name"])
+                filtered_df = self.df.loc[deck]
+                sorted_df = filtered_df.sort_values(by=["Attack", "HP", "Sp. Atk", "Speed"], ascending=False)
+                deck_trie = sorted_df.index.tolist()
+
+                if self.coup_bloquant(self.mat[coup_ia[1][0]][coup_ia[1][1]], (coup_ia[1][2], coup_ia[1][3]), -1):
+                    poke_choisi = deck_trie[-1]
+                else:
+                    milieu = len(deck_trie) // 2
+                    poke_choisi = deck_trie[milieu]
+
+                poke_choisi = self.name_to_poke[poke_choisi]
+
+                centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
+                self.g.deplacer(poke_choisi, (centre[0] - 67.5) + 45 * coup_ia[1][3] - poke_choisi.x + 1,
+                                (centre[1] - 67.5) + 45 * coup_ia[1][2] - poke_choisi.y + 1)
+
+                if j == 1:
+                    col = "red"
+                else:
+                    col = "blue"
+
+                self.g.dessinerRectangle(poke_choisi.x, poke_choisi.y, 44, 44, col)
+                self.g.placerAuDessus(poke_choisi)
+                self.asso_poke[poke_choisi]["dispo"] = False
+                self.asso_poke[poke_choisi]["co_mat"] = (coup_ia[1][0], coup_ia[1][1], coup_ia[1][2], coup_ia[1][3])
+                self.co_to_poke[(coup_ia[1][0], coup_ia[1][1], coup_ia[1][2], coup_ia[1][3])] = poke_choisi
+                self.dic_asso[poke_choisi] = (coup_ia[1][0], coup_ia[1][1], coup_ia[1][2], coup_ia[1][3])
+                self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = j
+
+                if prochain_coup != -1:
+                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
+                else:
+                    for i in self.dico_surbrillance:
+                        self.g.changerCouleur(self.dico_surbrillance[i], "black")
+
+                prochain_coup = (coup_ia[1][2], coup_ia[1][3])
+
+                win = self.verif_win(self.mat[coup_ia[1][0]][coup_ia[1][1]])
+                if abs(win) == 1:
+                    self.main_mat[coup_ia[1][0]][coup_ia[1][1]] = win
+                    self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1, 75 + coup_ia[1][0] * 150 + 1, 148, 148,
+                                             "black")
+                    if win == -1:
+                        image = "rond2.png"
+                    else:
+                        image = "croix2.png"
+                    self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150, image)
+                    win_global = self.verif_win(self.main_mat)
+                    if abs(win_global) == 1:
+                        return win_global
+                        self.fin = True
+
+                if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(
+                        x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
+                    prochain_coup = -1
+                    for i in self.dico_surbrillance:
+                        self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+            self.g.actualiser()
+            j = -j
+
+    def start_ia_vs_ia(self):
+        self.afficher_morpion()
+        j = 1
+        prochain_coup = -1
+        while not self.fin:
+
+            cpt = 0
+
+            for ligne in range(3):
+                for colonne in range(3):
+                    if self.main_mat[ligne][colonne] != 0 or all(
+                            x != 0 for y in self.mat[ligne][colonne] for x in y):
+                        cpt += 1
+            if cpt == 9:
+                return 0
+                self.fin = True
+
+            nb_coup_possible = 0
+            for x in range(3):
+                for y in range(3):
+                    if self.verif_win(self.mat[x][y]) == 0:
+                        for x1 in range(3):
+                            for y1 in range(3):
+                                if self.mat[x][y][x1][y1] == 0:
+                                    nb_coup_possible += 1
+
+            if j == 1 :
+                joueur = False
+            else :
+                joueur = True
+
+
+            coup_ia = self.minimax(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf, joueur)
+            self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = j
+
+            centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
+            if j == 1 :
+                image = "rond.png"
+            else :
+                image = "croix.png"
+            self.g.afficherImage((centre[0] - 67.5) + 45 * coup_ia[1][3] + 2.5,
+                                 (centre[1] - 67.5) + 45 * coup_ia[1][2] + 2.5, image)
+            j = -j
+
+            if prochain_coup != -1:
+                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
+            else:
+                for i in self.dico_surbrillance:
+                    self.g.changerCouleur(self.dico_surbrillance[i], "black")
+
+            prochain_coup = (coup_ia[1][2], coup_ia[1][3])
+            win = self.verif_win(self.mat[coup_ia[1][0]][coup_ia[1][1]])
+            if abs(win) == 1:
+                self.main_mat[coup_ia[1][0]][coup_ia[1][1]] = win
+                self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1,
+                                         75 + coup_ia[1][0] * 150 + 1, 148, 148, "black")
+                if win == -1:
+                    image = "croix2.png"
+                elif win == 1:
+                    image = "rond2.png"
+                self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150, image)
+
+                win_globale = self.verif_win(self.main_mat)
+                if abs(win_globale) == 1:
+                    if win == -1:
+                        return 2
+                    else:
+                        return win_globale
+                    self.fin = True
+
+            if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(
+                    x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
+                prochain_coup = -1
+                for i in self.dico_surbrillance:
+                    self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+            elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
+                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+            self.g.actualiser()
+
+
 
 
 g = ouvrirFenetre(1200,600)
 jeu = Morpion(g)
 # jeu.start_ia()
 # jeu.start()
-jeu.start_poke_ia()
+# jeu.start_poke_ia()
 # jeu.start_poke()
+# jeu.start_poke_ia_vs_ia()
+# jeu.start_ia_vs_ia()
