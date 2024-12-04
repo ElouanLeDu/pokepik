@@ -1,20 +1,17 @@
 import time
 import numpy as np
-from tkiteasy import *
 import math
 from combat import combat_de_pokemon
 import pandas as pds
-from PIL import Image, ImageTk
-import os
-import tkinter as tk
+import pygame
 
 
 
 class Morpion:
-    def __init__(self,g):
+    def __init__(self,g,df,deck1,deck2):
         self.g = g
         self.mat = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)]) #la matrice contenant des matrices qui representent les petits morpion
-        self.main_mat = np.zeros(((3,3)))                                             #la matrice qui represente le grand morpion
+        self.main_mat = np.zeros((3,3))                                             #la matrice qui represente le grand morpion
         self.dic_asso = {}
         self.fin = False
         self.dico_surbrillance={}
@@ -24,10 +21,10 @@ class Morpion:
             (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]
 
         self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
-        self.df = pds.read_csv('pokemon_modified.csv', index_col="Name")
+        self.df = df
 
         pokemon_list = self.df.sample(n=120).index.tolist()
-        self.deck = [pokemon_list[:60], pokemon_list[60:]]
+        self.deck = [deck1,deck2]
 
         self.combat = combat_de_pokemon(self.g,self.df)
         self.asso_poke = {}
@@ -88,6 +85,9 @@ class Morpion:
                 return mat[0][i]
 
         #diagonale
+
+
+
         if abs(mat[0][0] + mat[1][1] + mat[2][2]) == 3 :
             return mat[0][0]
         if abs(mat[2][0] + mat[1][1] + mat[0][2]) == 3 :
@@ -98,6 +98,12 @@ class Morpion:
 
     #jeu simple avec deux joueurs
     def start(self):
+
+        pygame.mixer.init()
+        pygame.mixer.music.load("musiques/Morpion_msc.mp3")
+        pygame.mixer.music.play(-1)
+
+
         self.afficher_morpion()
         #le joueur qui commence
         j = 1
@@ -105,6 +111,7 @@ class Morpion:
         while not self.fin:
             clic = self.g.recupererClic()
             touche = self.g.recupererTouche()
+
             if clic :
                 #l'utilisation de try est surtout utile pour voir si le clic ramene bien a un objet
                 try :
@@ -114,11 +121,11 @@ class Morpion:
                         #si le prochain coup = -1 alors on peut jouer ou on veut
                         if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
                             if j == 1:
-                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/rond.png")
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = 1
                                 j = -1
                             elif j == -1:
-                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
+                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/croix.png")
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = -1
                                 j = 1
 
@@ -136,21 +143,22 @@ class Morpion:
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
                             self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 +1 ,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
                             if win == -1 :
-                                image = "croix2.png"
+                                image = "rond_croix/croix2.png"
                             elif win == 1 :
-                                image = "rond2.png"
-                            self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
+                                image = "rond_croix/rond2.png"
+                            self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150,image )
                             if abs(self.verif_win(self.main_mat)) == 1 :
                                 self.fin = True
 
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                             prochain_coup = -1
                             for i in self.dico_surbrillance:
-                                self.g.changerCouleur(self.dico_surbrillance[i],"cyan")
+                                self.g.changerCouleur(self.dico_surbrillance[i],"green")
                         elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 except :
                     continue
+        pygame.mixer.music.stop()
 
 
     def eval_petit(self,mat):#cette fonction evalue un morpion de base
@@ -344,18 +352,24 @@ class Morpion:
 
 
     def start_ia(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load("musiques/PVE.mp3")
+        pygame.mixer.music.play(-1)
+
+
         self.afficher_morpion()
         j = 1
         prochain_coup = -1
         while not self.fin:
             if j == 1:
                 clic = self.g.recupererClic()
+
                 if clic :
                     try :
                         objet = self.g.recupererObjet(clic.x, clic.y)
                         if objet in self.dic_asso and self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] == 0 and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0 :
                             if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
-                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+                                self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/rond.png")
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = 1
                                 j = -1
                                 if prochain_coup != -1:
@@ -370,9 +384,9 @@ class Morpion:
                                 self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 + 1,
                                                          75 + self.dic_asso[objet][0] * 150 + 1, 148, 148, "black")
                                 if win == -1:
-                                    image = "croix2.png"
+                                    image = "rond_croix/croix2.png"
                                 elif win == 1:
-                                    image = "rond2.png"
+                                    image = "rond_croix/rond2.png"
                                 self.g.afficherImage(375 + self.dic_asso[objet][1] * 150,
                                                      75 + self.dic_asso[objet][0] * 150, image)
                                 if abs(self.verif_win(self.main_mat)) == 1:
@@ -380,9 +394,9 @@ class Morpion:
                             if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1:
                                 prochain_coup = -1
                                 for i in self.dico_surbrillance:
-                                    self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                                    self.g.changerCouleur(self.dico_surbrillance[i], "green")
                             elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                                self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                             self.g.actualiser()
                     except :
                         continue
@@ -416,30 +430,36 @@ class Morpion:
                     self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1,
                                              75 + coup_ia[1][0] * 150 + 1, 148, 148, "black")
                     if win == -1:
-                        image = "croix2.png"
+                        image = "rond_croix/croix2.png"
                     elif win == 1:
-                        image = "rond2.png"
+                        image = "rond_croix/rond2.png"
                     self.g.afficherImage(375 + coup_ia[1][1] * 150,
                                          75 + coup_ia[1][0] * 150, image)
                     if abs(self.verif_win(self.main_mat)) == 1:
                         if win == -1:
-                            image = "croix2.png"
+                            image = "rond_croix/croix2.png"
                         elif win == 1:
-                            image = "rond2.png"
+                            image = "rond_croix/rond2.png"
                         self.g.afficherImage(0,0,image)
                         time.sleep(10)
                         self.fin = True
                 if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                     prochain_coup = -1
                     for i in self.dico_surbrillance:
-                        self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                        self.g.changerCouleur(self.dico_surbrillance[i], "green")
                 elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                    self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 self.g.actualiser()
+        pygame.mixer.music.stop()
 
     def start_poke(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load("musiques/Morpion_msc.mp3")
+        pygame.mixer.music.play(-1)
+
         self.afficher_poke()
         self.afficher_morpion()
+
 
         #le joueur qui commence
         j = 1
@@ -480,6 +500,9 @@ class Morpion:
                                 poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
 
                                 resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
+                                pygame.mixer.init()
+                                pygame.mixer.music.load("Morpion_msc.mp3")
+                                pygame.mixer.music.play(-1)
 
 
                                 winner = self.name_to_poke[resultat[0]]
@@ -494,10 +517,10 @@ class Morpion:
                                 self.g.dessinerRectangle(objet.x,objet.y,44,44,"black")
 
                                 if j == self.asso_poke[winner]["joueur"]:
-                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/rond.png")
 
                                 else:
-                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
+                                    self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/croix.png")
 
                                 self.g.supprimer(winner)
                                 self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
@@ -538,9 +561,9 @@ class Morpion:
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
                             self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 + 1,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
                             if win == -1 :
-                                image = "rond2.png"
+                                image = "rond_croix/rond2.png"
                             else :
-                                image = "croix2.png"
+                                image = "rond_croix/croix2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
                             if abs(self.verif_win(self.main_mat)) == 1 :
                                 self.fin = True
@@ -548,11 +571,13 @@ class Morpion:
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                             prochain_coup = -1
                             for i in self.dico_surbrillance:
-                                self.g.changerCouleur(self.dico_surbrillance[i],"cyan")
+                                self.g.changerCouleur(self.dico_surbrillance[i],"green")
                         elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 except :
                     continue
+
+        pygame.mixer.music.stop()
 
     def a_un_avantage(self, pokemon, adversaire_types):
 
@@ -721,6 +746,10 @@ class Morpion:
 
 
     def start_poke_ia(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load("musiques/PVE.mp3")
+        pygame.mixer.music.play(-1)
+
         self.afficher_poke()
         self.afficher_morpion()
 
@@ -764,7 +793,9 @@ class Morpion:
                                     poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
 
                                     resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
-
+                                    pygame.mixer.init()
+                                    pygame.mixer.music.load("PVE.mp3")
+                                    pygame.mixer.music.play(-1)
                                     winner = self.name_to_poke[resultat[0]]
                                     loser = self.name_to_poke[resultat[1]]
 
@@ -777,10 +808,10 @@ class Morpion:
                                     self.g.dessinerRectangle(objet.x,objet.y,44,44,"black")
 
                                     if j == self.asso_poke[winner]["joueur"]:
-                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "croix.png")
+                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/croix.png")
 
                                     else:
-                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond.png")
+                                        self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/rond.png")
 
                                     self.g.supprimer(winner)
                                     self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
@@ -822,9 +853,9 @@ class Morpion:
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
                             self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 +1 ,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
                             if win == -1 :
-                                image = "rond2.png"
+                                image = "rond_croix/rond2.png"
                             else :
-                                image = "croix2.png"
+                                image = "rond_croix/croix2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
                             if abs(self.verif_win(self.main_mat)) == 1 :
                                 self.fin = True
@@ -832,9 +863,9 @@ class Morpion:
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                             prochain_coup = -1
                             for i in self.dico_surbrillance:
-                                self.g.changerCouleur(self.dico_surbrillance[i],"cyan")
+                                self.g.changerCouleur(self.dico_surbrillance[i],"green")
                         elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                            self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 except :
                     continue
                 self.g.actualiser()
@@ -861,6 +892,9 @@ class Morpion:
 
 
                     resultat = self.combat.combat(poke_choisi, adversaire)
+                    pygame.mixer.init()
+                    pygame.mixer.music.load("PVE.mp3")
+                    pygame.mixer.music.play(-1)
                     self.g.actualiser()
 
                     winner = self.name_to_poke[resultat[0]]
@@ -875,11 +909,11 @@ class Morpion:
                     self.g.dessinerRectangle(a.x, a.y, 44, 44, "black")
 
                     if j == self.asso_poke[winner]["joueur"]:
-                        self.g.afficherImage(a.x + 2.5, a.y + 2.5, "rond.png")
+                        self.g.afficherImage(a.x + 2.5, a.y + 2.5, "rond_croix/rond.png")
                         print(a.x + 2.5, a.y + 2.5)
 
                     else:
-                        self.g.afficherImage(a.x + 2.5, a.y + 2.5, "croix.png")
+                        self.g.afficherImage(a.x + 2.5, a.y + 2.5, "rond_croix/croix.png")
                         print(a.x + 2.5, a.y + 2.5)
 
 
@@ -900,9 +934,9 @@ class Morpion:
                         self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1, 75 + coup_ia[1][0] * 150 + 1, 148, 148,
                                                  "black")
                         if win == -1:
-                            image = "rond2.png"
+                            image = "rond_croix/rond2.png"
                         else:
-                            image = "croix2.png"
+                            image = "rond_croix/croix2.png"
                         self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150, image)
                         if abs(self.verif_win(self.main_mat)) == 1:
                             self.fin = True
@@ -911,9 +945,9 @@ class Morpion:
                             x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                         prochain_coup = -1
                         for i in self.dico_surbrillance:
-                            self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                            self.g.changerCouleur(self.dico_surbrillance[i], "green")
                     elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                        self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                        self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
 
                 else :
                     deck = []
@@ -967,9 +1001,9 @@ class Morpion:
                         self.main_mat[coup_ia[1][0]][coup_ia[1][1]] = win
                         self.g.dessinerRectangle(375 + coup_ia[1][1] * 150 + 1, 75 + coup_ia[1][0] * 150 + 1, 148, 148, "black")
                         if win == -1:
-                            image = "rond2.png"
+                            image = "rond_croix/rond2.png"
                         else:
-                            image = "croix2.png"
+                            image = "rond_croix/croix2.png"
                         self.g.afficherImage(375 + coup_ia[1][1] * 150, 75 + coup_ia[1][0] * 150,image)
                         if abs(self.verif_win(self.main_mat)) == 1:
                             self.fin = True
@@ -977,17 +1011,18 @@ class Morpion:
                     if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                         prochain_coup = -1
                         for i in self.dico_surbrillance:
-                            self.g.changerCouleur(self.dico_surbrillance[i], "cyan")
+                            self.g.changerCouleur(self.dico_surbrillance[i], "green")
                     elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
-                        self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "cyan")
+                        self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
 
                 j = 1
+        pygame.mixer.music.stop()
 
 
 
-g = ouvrirFenetre(1200,600)
-jeu = Morpion(g)
+#g = ouvrirFenetre(1200,600)
+#jeu = Morpion(g)
 # jeu.start_ia()
 # jeu.start()
-jeu.start_poke_ia()
+#jeu.start_poke_ia()
 # jeu.start_poke()

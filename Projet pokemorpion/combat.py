@@ -2,10 +2,10 @@ import pandas as pds
 import random
 import os
 from time import time
-from PIL import Image, ImageTk
 import pygame
 import time
 from tkiteasy import *
+
 class combat_de_pokemon ():
 
     def __init__(self, g,df):
@@ -67,13 +67,13 @@ class combat_de_pokemon ():
         pygame.mixer.init()
 
         # Charger la musique
-        pygame.mixer.music.load("combat music.mp3")  # Remplace par le chemin de ton fichier
+        pygame.mixer.music.load("musiques/combat music.mp3")  # Remplace par le chemin de ton fichier
 
         # Lancer la musique en boucle
         pygame.mixer.music.play(-1)  # -1 pour jouer en boucle
 
         #image
-        img=self.g.afficherImage(-50, 0, "poke_stadium.png")
+        img=self.g.afficherImage(-50, 0, "fonds/poke_stadium.png")
 
         #sauvegarde stats
         stats_origin = {
@@ -189,7 +189,7 @@ class combat_de_pokemon ():
         #gestion musique
         pygame.mixer.music.stop()  # Arrêter la musique à la fin
         pygame.mixer.init()        # démarrer musique de fin
-        pygame.mixer.music.load("Fin.mp3")
+        pygame.mixer.music.load("musiques/Fin.mp3")
         pygame.mixer.music.play(-1)
 
         #affichage gagnat
@@ -274,24 +274,24 @@ class combat_de_pokemon ():
             return mot
     def get_color_for_type(self,type): #dico type couleur,sphère énérgie
         color_map = {
-            "Bug": ("green","atk_bug.png"),
-            "Dark": ("black","atk_dark.png"),
-            "Dragon": ("purple","atk_dragon.png"),
-            "Electric": ("yellow","atk_elec.png"),
-            "Fairy": ("pink","atk_fee.png"),
-            "Fighting": ("red","atk_fighting.png"),
-            "Fire": ("red","atk_fire.png"),
-            "Flying": ("lightblue","atk_fly.png"),
-            "Ghost": ("purple","atk_ghost.png"),
-            "Grass": ("green","atk_plante_.png"),
-            "Ground": ("brown","atk_ground.png"),
-            "Ice": ("cyan","atk_ice.png"),
-            "Normal": ("gray","atk_normal.png"),
-            "Poison": ("purple","atk_poison.png"),
-            "Psychic": ("violet","atk_psy.png"),
-            "Rock": ("brown","atk_rock.png"),
-            "Steel": ("silver","atk_steel.png"),
-            "Water": ("blue","atk_water.png")
+            "Bug": ("green","sphere_atk/atk_bug.png"),
+            "Dark": ("black","sphere_atk/atk_dark.png"),
+            "Dragon": ("purple","sphere_atk/atk_dragon.png"),
+            "Electric": ("yellow","sphere_atk/atk_elec.png"),
+            "Fairy": ("pink","sphere_atk/atk_fee.png"),
+            "Fighting": ("red","sphere_atk/atk_fighting.png"),
+            "Fire": ("red","sphere_atk/atk_fire.png"),
+            "Flying": ("lightblue","sphere_atk/atk_fly.png"),
+            "Ghost": ("purple","sphere_atk/atk_ghost.png"),
+            "Grass": ("green","sphere_atk/atk_plante_.png"),
+            "Ground": ("brown","sphere_atk/sphere_atk/atk_ground.png"),
+            "Ice": ("cyan","sphere_atk/atk_ice.png"),
+            "Normal": ("gray","sphere_atk/atk_normal.png"),
+            "Poison": ("purple","sphere_atk/atk_poison.png"),
+            "Psychic": ("violet","sphere_atk/atk_psy.png"),
+            "Rock": ("brown","sphere_atk/atk_rock.png"),
+            "Steel": ("silver","sphere_atk/atk_steel.png"),
+            "Water": ("blue","sphere_atk/atk_water.png")
         }
         return color_map.get(type, "gray")  # Retourne une couleur par défaut (gris)
 

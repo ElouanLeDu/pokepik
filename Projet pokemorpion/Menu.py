@@ -1,13 +1,5 @@
-from importlib.metadata import Distribution
-
 import pandas as pds
 from tkiteasy import *
-import os
-from time import time
-import matplotlib.pyplot as pyplt
-from PIL import Image, ImageTk
-import tkinter as tk
-from io import BytesIO
 import tkinter as tk
 from tkinter import messagebox
 import pygame
@@ -21,31 +13,36 @@ from distribute import Distri
 # Aucune fonction n'a de renvoi. C'etait plus simple pour la construction du programme, bien que cela soit un peu inutile
 
 
-class Pokemorpion():
+class Pokemorpion ():
     def __init__(self):
         self.g = ouvrirFenetre(1200, 600)
         self.df=pds.read_csv('pokemon_modified.csv', index_col='Name')
-        self.g.afficherImage(0, 0, "fond_entree.png")
-        self.jeu=Morpion(self.g)
+        self.g.afficherImage(0, 0, "fonds/fond_entree.png")
+        self.deck1 = []
+        self.deck2 = []
+        self.jeu=Morpion(self.g,self.df,self.deck1,self.deck2)
         self.fight=combat_de_pokemon(self.g,self.df)
         self.distri=Distri(self.g,self.df)
         self.poke1 = ""
         self.poke2 = ""
-        self.deck1=[]
-        self.deck2=[]
+
 
 
 
     def affichage_menu(self):  # affichage du menu principal
-        self.g.afficherImage(0, 0, "fond_menu.jpg")
-        self.g.afficherImage(410, -110,"game_mode.png")
-        self.combat = self.g.afficherImage(740, 330,"Fight.png")
-        self.pvp = self.g.afficherImage(560, 330,"PVP.png")
-        self.pve = self.g.afficherImage(560,200,"PVE.png")
-        self.eve= self.g.afficherImage(740, 200,"EVE.png")
-        self.q = self.g.afficherImage(1000, 440,"QUIT.png")
-        self.draft=self.g.afficherImage(395, 340,"Draft.png")
-        self.random_deck=self.g.afficherImage(385, 200,"Random_deck.png")
+        self.g.afficherImage(0, 0, "fonds/fond_menu.jpg")
+        self.g.afficherImage(410, -130,"titres/game_mode.png")
+        self.g.afficherImage(740, 140,"boutons/Classic_mod.png")
+        self.g.afficherImage(850, 120, "boutons/pokemode.png")
+        self.combat = self.g.afficherImage(590, 330,"boutons/Fight.png")
+        self.pvp = self.g.afficherImage(720, 330,"boutons/PVP.png")
+        self.pve = self.g.afficherImage(720, 200,"boutons/PVE.png")
+        self.eve= self.g.afficherImage(590,200,"boutons/EVE.png")
+        self.q = self.g.afficherImage(1000, 440,"boutons/QUIT.png")
+        self.draft=self.g.afficherImage(395, 340,"boutons/Draft.png")
+        self.random_deck=self.g.afficherImage(385, 200,"boutons/Random_deck.png")
+        self.pve_poke=self.g.afficherImage(850,200,"boutons/PVE_blue.png")
+        self.pvp_poke=self.g.afficherImage(850, 330,"boutons/PVP_blue.png")
         self.g.actualiser()
 
     def transition(self, nb):  # affichage uniquement transition menu de début de jeu
@@ -54,11 +51,11 @@ class Pokemorpion():
 
         if nb == 1:  # écran de début du jeu
 
-            play = self.g.afficherImage(470, 300,"Bouton_jouer.png")
+            play = self.g.afficherImage(470, 300,"boutons/Bouton_jouer.png")
 
-            self.g.afficherImage(386, 0,"Title.png")
+            self.g.afficherImage(386, 0,"titres/Title.png")
             pygame.mixer.init()
-            pygame.mixer.music.load("Debut.mp3")
+            pygame.mixer.music.load("musiques/Debut.mp3")
             pygame.mixer.music.play(-1)
             clic = self.g.attendreClic()
             x = self.g.recupererObjet(clic.x, clic.y)
@@ -68,13 +65,13 @@ class Pokemorpion():
 
         elif nb == 2 : #transition avant combat
 
-            self.g.afficherImage(0, 0, "entree_arène.png")
-            self.g.afficherImage(740, 160, "P2.png")
-            self.g.afficherImage(340, 160, "P1.png")
-            self.g.afficherImage(540, 200, "start.png")
+            self.g.afficherImage(0, 0, "fonds/entree_arène.png")
+            self.g.afficherImage(740, 160, "titres/P2.png")
+            self.g.afficherImage(340, 160, "titres/P1.png")
+            self.g.afficherImage(540, 200, "boutons/start.png")
             self.g.actualiser()
             pygame.mixer.init()
-            pygame.mixer.music.load("battle_transition.mp3")
+            pygame.mixer.music.load("musiques/battle_transition.mp3")
             pygame.mixer.music.play(-1)
 
             # Champs d'entrée pour les noms des Pokémon
@@ -125,14 +122,36 @@ class Pokemorpion():
 
         self.g.quit()  # Fermer la boucle Tkinter pour continuer le programme
 
+    def ecran_win(self,x):
+        self.g.afficherImage(0,0,"fonds/win_fond.png")
+        pygame.mixer.init()
+        pygame.mixer.music.load("musiques/win_msc.mp3")
+        pygame.mixer.music.play(-1)
+
+        if x==1:
+            self.g.afficherImage(390,190,"titres/win_P1.png")
+
+        elif x==-1:
+            self.g.afficherImage(390,190, "titres/win_P2.png")
+
+        elif x==0:
+            self.g.afficherImage(390,170, "titres/Draw.png")
+
+        self.g.attendreClic()
+        self.g.supprimerTout()
+        pygame.mixer.music.stop()
+
+
     def menu(self):  # menu principal, appel des fonctions et gestion des fonctionnalites
+
+
 
         self.transition(1)
 
         stop = False
         while stop == False:  # on boucle tant que le joueur en clique pas sur quitter la partie
             pygame.mixer.init()
-            pygame.mixer.music.load("menu2.mp3")
+            pygame.mixer.music.load("musiques/menu2.mp3")
             pygame.mixer.music.play(-1)
             self.g.supprimerTout()
             self.affichage_menu()
@@ -140,7 +159,8 @@ class Pokemorpion():
             x = self.g.recupererObjet(clic.x, clic.y)
 
             if x == self.eve: #affichage pour chaque mode de jeu
-                self.g.afficherImage(0, 0, "fond_morpion.jpg")
+                pygame.mixer.music.stop()
+                self.g.afficherImage(0, 0, "fonds/fond_morpion.jpg")
                 self.jeu.start_ia()
                 self.g.attendreClic()
 
@@ -158,34 +178,59 @@ class Pokemorpion():
 
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
-
-                self.distri.distribute_draft()
-
+                self.deck1, self.deck2 =[],[]
+                [self.deck1, self.deck2] = self.distri.distribute_draft()
+                self.jeu = Morpion(self.g, self.df, self.deck1, self.deck2)
                 self.g.attendreClic()
 
 
             if x == self.pvp:
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
-                self.g.afficherImage(0, 0, "fond_morpion.jpg", 1200,600)
-                self.jeu.start()
+                self.g.afficherImage(0, 0, "fonds/fond_morpion.jpg", 1200,600)
+                x=self.jeu.start()
+
+                self.ecran_win(x)
+
+            if x == self.pvp_poke:
+                if (self.deck1,self.deck2)==([],[]):
+                    continue
+
+                pygame.mixer.music.stop()
+                self.g.supprimerTout()
+                self.g.afficherImage(0, 0, "fonds/fond_morpion.jpg", 1200,600)
+                x=self.jeu.start_poke()
                 self.g.attendreClic()
+                self.ecran_win(x)
 
 
             if x==self.random_deck:
 
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
+                self.deck1, self.deck2 = [], []
+                [self.deck1,self.deck2]=self.distri.distribute_random()
+                self.jeu = Morpion(self.g, self.df, self.deck1, self.deck2)
 
-                self.distri.distribute_random()
 
 
             if x == self.pve:
                 pygame.mixer.music.stop()
                 self.g.supprimerTout()
-                self.g.afficherImage(0, 0, "fond_morpion.jpg")
+                self.g.afficherImage(0, 0, "fonds/fond_morpion.jpg")
                 self.jeu.start_ia()
                 self.g.attendreClic()
+
+            if x == self.pve_poke:
+                if (self.deck1,self.deck2)==([],[]):
+                    continue
+
+                pygame.mixer.music.stop()
+                self.g.supprimerTout()
+                self.g.afficherImage(0, 0, "fonds/fond_morpion.jpg")
+                self.jeu.start_poke_ia()
+                self.g.attendreClic()
+
 
             if x == self.q:  # bouton pour quitter le jeu
                 pygame.mixer.music.stop()

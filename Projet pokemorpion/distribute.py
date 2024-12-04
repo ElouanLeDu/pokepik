@@ -1,5 +1,5 @@
 ####### Class distribution ######
-from tkiteasy import *
+
 import time
 import os
 import pandas as pds
@@ -31,27 +31,27 @@ class Distri () :
 
     def distribute_random(self):  # random distribute
         pygame.mixer.init()
-        pygame.mixer.music.load("music_distri.mp3")
+        pygame.mixer.music.load("musiques/music_distri.mp3")
         pygame.mixer.music.play(-1)
-        self.g.afficherImage(0, 0, "fond_distri.jpg", 1200, 600)
-        submit = self.g.afficherImage(525, 240, "bouton_submit.png")
+        self.g.afficherImage(0, 0, "fonds/fond_distri.jpg", 1200, 600)
+        submit = self.g.afficherImage(525, 240, "boutons/bouton_submit.png")
         self.g.actualiser()
         pool_1 = self.pk.loc[(self.pk['Total'] <= 550) & (self.pk['Total'] > 450)]
         pool_2 = self.pk.loc[(self.pk['Total'] <= 360) & (self.pk['Total'] > 270)]
         pool_3 = self.pk.loc[(self.pk['Total'] <= 450) & (self.pk['Total'] > 360)]
         pool_4 = self.pk.loc[(self.pk['Total'] > 550)]
-        pl1_pool_1 = pool_1.sample(n=25, random_state=42)
+        pl1_pool_1 = pool_1.sample(n=25)
         pool_1 = pool_1.drop(pl1_pool_1.index, inplace=False)
-        pl2_pool_1 = pool_1.sample(n=25, random_state=42)
-        pl1_pool_2 = pool_2.sample(n=15, random_state=42)
+        pl2_pool_1 = pool_1.sample(n=25)
+        pl1_pool_2 = pool_2.sample(n=15)
         pool_2 = pool_2.drop(pl1_pool_2.index, inplace=False)
-        pl2_pool_2 = pool_2.sample(n=15, random_state=42)
-        pl1_pool_3 = pool_3.sample(n=10, random_state=42)
+        pl2_pool_2 = pool_2.sample(n=15)
+        pl1_pool_3 = pool_3.sample(n=10)
         pool_3 = pool_3.drop(pl1_pool_3.index, inplace=False)
-        pl2_pool_3 = pool_3.sample(n=10, random_state=42)
-        pl1_pool_4 = pool_4.sample(n=10, random_state=42)
+        pl2_pool_3 = pool_3.sample(n=10)
+        pl1_pool_4 = pool_4.sample(n=10)
         pool_4 = pool_4.drop(pl1_pool_4.index, inplace=False)
-        pl2_pool_4 = pool_4.sample(n=10, random_state=42)
+        pl2_pool_4 = pool_4.sample(n=10)
         self.player1 = pds.concat([pl1_pool_1, pl1_pool_2, pl1_pool_3, pl1_pool_4])
         self.player2 = pds.concat([pl2_pool_1, pl2_pool_2, pl2_pool_3, pl2_pool_4])
         self.player1 = list(self.player1.index)
@@ -65,13 +65,13 @@ class Distri () :
             # print(i)
             # print(l1,l2)
         for n in range(30):
-            print(l1[n])
+
             self.g.afficherImage(10, 40 * n, l1[n], 40, 40)
-            print(l1[n + 30])
+
             self.g.afficherImage(110, 40 * n, l1[n + 30], 40, 40)
-            print(l2[n])
+
             self.g.afficherImage(1100, 40 * n, l2[n], 40, 40)
-            print(l2[n + 30])
+
             self.g.afficherImage(1000, 40 * n, l2[n + 30], 40, 40)
             time.sleep(0.05)
             self.g.actualiser()
@@ -82,7 +82,7 @@ class Distri () :
             x = self.g.recupererObjet(clic.x, clic.y)
         pygame.mixer.music.stop()
 
-        return (self.player1,self.player2)
+        return [self.player1,self.player2]
 
 
     def choose(self, pool, pl1, pl2, end_1_x, end_1_y, end_2_x, end_2_y):
@@ -178,9 +178,9 @@ class Distri () :
 
     def distribute_draft(self):  # draft
         pygame.mixer.init()
-        pygame.mixer.music.load("music_distri.mp3")
+        pygame.mixer.music.load("musiques/music_distri.mp3")
         pygame.mixer.music.play(-1)
-        self.g.afficherImage(0, 0, "fond_distri.jpg", 1200, 600)
+        self.g.afficherImage(0, 0, "fonds/fond_distri.jpg", 1200, 600)
         pool1 = self.pk_legend.sample(n=20)
         pool2 = self.pk_normal.sample(n=100)
         for i in range(10):
@@ -212,6 +212,6 @@ class Distri () :
                     self.choose(pool2, self.player2, self.player1, 1150, 40 + i * 20, 50, 40 + (i - 24) * 20)
                     self.g.supprimer(t)
         pygame.mixer.music.stop()
-        return (self.player1, self.player2)
+        return [self.player1, self.player2]
 
 
