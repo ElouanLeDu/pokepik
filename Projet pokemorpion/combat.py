@@ -175,7 +175,7 @@ class combat_de_pokemon ():
 
         #réinitialisation des stats du perdant + montée de niveau par rapport à la durée du combat
         self.df.loc[looser, "HP"], self.df.loc[looser, "Attack"] = stats_origin[looser]["HP"], stats_origin[looser]["Attack"]
-        self.df.loc[looser,'Niveau']+=tour
+        self.df.loc[looser,'Niveau']+=tour #plus le combat est long plus le pokemon monte en niveau
 
         #suppression des objets
         self.g.supprimer(poke1_hp_bar)
@@ -284,7 +284,7 @@ class combat_de_pokemon ():
             "Flying": ("lightblue","sphere_atk/atk_fly.png"),
             "Ghost": ("purple","sphere_atk/atk_ghost.png"),
             "Grass": ("green","sphere_atk/atk_plante_.png"),
-            "Ground": ("brown","sphere_atk/sphere_atk/atk_ground.png"),
+            "Ground": ("brown","sphere_atk/atk_ground.png"),
             "Ice": ("cyan","sphere_atk/atk_ice.png"),
             "Normal": ("gray","sphere_atk/atk_normal.png"),
             "Poison": ("purple","sphere_atk/atk_poison.png"),
@@ -299,7 +299,7 @@ class combat_de_pokemon ():
     def get_pokemon_image(self,pokemon_name):
         image_path = os.path.join("pokemon_images", f"{pokemon_name}.png")
 
-        return self.redimenssioner_img(image_path,200,200)
+        return self.redimenssioner_img(image_path,190,190)
 
     def redimenssioner_img(self,img,dimx,dimy):
 
@@ -311,16 +311,77 @@ class combat_de_pokemon ():
 
         return ( ImageTk.PhotoImage(image_resized))
 
+    def combat_simple(self,poke1, poke2):
+        """
+        Combat entre deux Pokémon sans affichage ni musique.
+        Retourne un tuple (vainqueur, perdant).
+        """
+        # Sauvegarde des stats originales
+        stats_origin = {
+            poke1: {"HP": self.df.loc[poke1, "HP"], "Attack": self.df.loc[poke1, "Attack"]},
+            poke2: {"HP": self.df.loc[poke2, "HP"], "Attack": self.df.loc[poke2, "Attack"]}
+        }
 
+        # Boost des stats pour le Pokémon avantagé
+        if self.avantage_type(poke1, poke2) is not None:
+            poke_dominant = self.avantage_type(poke1, poke2)
+            self.df.loc[poke_dominant, 'Attack'] += int(self.df.loc[poke_dominant, 'Attack'] * 0.2)
+
+        # Détermination du Pokémon qui commence
+        if self.df.loc[poke1, 'Speed'] > self.df.loc[poke2, 'Speed']:
+            attaquant, defenseur = poke1, poke2
+        elif self.df.loc[poke1, 'Speed'] < self.df.loc[poke2, 'Speed']:
+            attaquant, defenseur = poke2, poke1
+        else:
+            # Choix aléatoire si égalité de vitesse
+            attaquant, defenseur = random.sample([poke1, poke2], 2)
+
+        tour = 1
+
+        # Boucle principale du combat
+        while self.df.loc[poke1, 'HP'] > 0 and self.df.loc[poke2, 'HP'] > 0:
+            # Dégâts infligés
+            self.degats_simple(attaquant, defenseur, self.df)
+            attaquant, defenseur = defenseur, attaquant  # Changer les rôles
+            tour += 1
+
+        # Déterminer le vainqueur et le perdant
+        if self.df.loc[poke2, 'HP'] <= 0:
+            winner, looser = poke1, poke2
+        else:
+            winner, looser = poke2, poke1
+
+        # Réinitialisation des stats du perdant
+        self.df.loc[looser, "HP"] = stats_origin[looser]["HP"]
+        self.df.loc[looser, "Attack"] = stats_origin[looser]["Attack"]
+        self.df.loc[looser, 'Niveau'] += tour
+
+        return (winner, looser)
+
+    def degats_simple(self,attaquant, defenseur, df):
+        """
+        Calcule les dégâts infligés par un attaquant à un défenseur
+        et met à jour les HP du défenseur.
+        """
+        # Évitement ou non basé sur la vitesse
+        dodge_chance = self.df.loc[attaquant, 'Speed'] / (self.df.loc[attaquant, 'Speed'] + self.df.loc[defenseur, 'Speed'])
+
+        if random.random() > (1 - dodge_chance) / 2:
+            # L'attaque touche
+            CRIT = random.uniform(0.7, 1.5)
+            damage = (((((self.df.loc[attaquant, 'Niveau'] * 0.4 + 2) *
+                         ((self.df.loc[attaquant, 'Sp. Atk'] + self.df.loc[attaquant, 'Attack']) / 2) *
+                         50) / (self.df.loc[defenseur, 'Defense'] + self.df.loc[defenseur, 'Sp. Def'])) + 2) * CRIT) // 1
+            self.df.loc[defenseur, 'HP'] = max(0, self.df.loc[defenseur, 'HP'] - damage)
 
     def fin(self):
         self.g.attendreClic()
         self.g.fermerFenetre()
 
-# poke1='Charizard'
-# poke2='Venusaur'
-# g=ouvrirFenetre(1200,600)
-# df = pds.read_csv('pokemon_modified.csv',index_col='Name')
-# C=combat_de_pokemon(g,df)
-# C.combat(poke1,poke2)
-# C.fin()
+#poke1='Charizard'
+#poke2='Venusaur'
+#g=ouvrirFenetre(1200,600)
+#df = pds.read_csv('pokemon_modified.csv',index_col='Name')
+#C=combat_de_pokemon(g,df)
+#C.combat(poke1,poke2)
+#C.fin()
