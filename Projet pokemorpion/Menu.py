@@ -148,10 +148,10 @@ class Pokemorpion ():
         pygame.mixer.music.load("musiques/win_msc.mp3")
         pygame.mixer.music.play(-1)
 
-        if x==1:
+        if x==-1:
             self.g.afficherImage(390,190,"titres/win_P1.png")
 
-        elif x==-1:
+        elif x==1:
             self.g.afficherImage(390,190, "titres/win_P2.png")
 
         elif x==0:
