@@ -12,19 +12,18 @@ class Morpion:
     def __init__(self,g,df,deck1,deck2):
         self.g = g
         self.mat = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)]) #la matrice contenant des matrices qui representent les petits morpion
-        self.main_mat = np.zeros((3,3))                                             #la matrice qui represente le grand morpion
+        self.main_mat = np.zeros((3,3))   #la matrice qui represente le grand morpion
         self.dic_asso = {}
         self.fin = False
-        self.dico_surbrillance={}
+        self.dico_surbrillance={}   #vas contenir les objets pour gerer la surbrillance
         self.centre = [
             (600, 300,(1,1)), (600, 150,(1,0)), (600, 450,(1,2)),
             (450, 300,(0,1)), (450, 150,(0,0)), (450, 450,(0,2)),
-            (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]
+            (750, 300,(2,1)), (750, 150,(2,0)), (750, 450,(2,2))]  #le centre de chaque grand morpion
 
-        self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])
+        self.mat_poke = np.array([[np.zeros((3, 3)) for i in range(3)] for i in range(3)])  #il y'a des 1 ou - 1 si la case a été gagné par un pokemon c'est a dire si on ne peut plus jouer dessus
         self.df = df
 
-        pokemon_list = self.df.sample(n=120).index.tolist()
         self.deck = [deck1,deck2]
 
         self.combat = combat_de_pokemon(self.g,self.df)
@@ -42,7 +41,9 @@ class Morpion:
                     joueur = 1
                 else:
                     joueur = -1
+                #ce dico est la base du jeu poke on peut retrouver toutes les info neccessaires a partir de l'objet graphique
                 self.asso_poke[poke] = {"co_mat":(-1,-1), "co": (53.5 + 47*(i%6) + 825 * (j%2),75 + 47 * (i//6)),"name" : self.deck[j][i], "joueur": joueur, "dispo" : True }
+                #associe le nom a l'objet graphique
                 self.name_to_poke[self.deck[j][i]] = poke
 
 
@@ -110,6 +111,7 @@ class Morpion:
 
             cpt = 0
 
+            #on verifie si il y'a egalité ou non
             for ligne in range(3):
                 for colonne in range(3):
                     if self.main_mat[ligne][colonne] !=0 or all(x != 0 for y in self.mat[ligne][colonne] for x in y):
@@ -117,6 +119,7 @@ class Morpion:
             if cpt == 9:
                 return 0
                 self.fin=True
+
 
             clic = self.g.recupererClic()
 
@@ -148,6 +151,7 @@ class Morpion:
                         #on verifie si le morpion sur lequel on a joué a été gagné ou pas
                         win = self.verif_win(self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]])
                         if abs(win) == 1:
+                            #on actualise la matrice principale avec les win
                             self.main_mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]] = win
                             self.g.dessinerRectangle(375 + self.dic_asso[objet][1] * 150 +1 ,75 + self.dic_asso[objet][0] * 150 + 1,148,148,"black")
                             if win == -1 :
@@ -155,12 +159,13 @@ class Morpion:
                             elif win == 1 :
                                 image = "rond_croix/rond2.png"
                             self.g.afficherImage( 375 + self.dic_asso[objet][1] * 150 ,75 + self.dic_asso[objet][0] * 150, image )
-
+                            #on verifie si il y'a un gagnant
                             win_globale = self.verif_win(self.main_mat)
                             if abs(win_globale) == 1 :
                                 return win_globale
                                 self.fin = True
 
+                        #on verifie si le prochain coup n'est pas une grille gagné ou complete
                         if abs(self.main_mat[prochain_coup[0]][prochain_coup[1]]) == 1 or all(x != 0 for y in self.mat[prochain_coup[0]][prochain_coup[1]] for x in y):
                             prochain_coup = -1
                             for i in self.dico_surbrillance:
@@ -168,6 +173,7 @@ class Morpion:
                         elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                             self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 except :
+                    #le try permet juste d'eviter l'erreur ou on clic dans le vide
                     continue
         pygame.mixer.music.stop()
 
@@ -176,8 +182,8 @@ class Morpion:
         #le joueur est représenté par des 1 sur la mat et l'ia par des -1
         evaluation = 0
         score = [[0.2, 0.17, 0.2],
-                    [0.17, 0.22, 0.17],
-                    [0.2, 0.17, 0.2]] #matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes 0)
+                 [0.17, 0.22, 0.17],
+                 [0.2, 0.17, 0.2]] #matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes -)
 
         for y in range(3) :
             for x in range(3) :
@@ -232,7 +238,7 @@ class Morpion:
     def eval_grand(self,mat,pos_actuelle):#cette fonction permet d'evaluer toute la grille actuelle
         score = [[1.4, 1, 1.4],
                  [1, 1.75, 1],
-                [1.4, 1, 1.4]] # matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes 0)
+                 [1.4, 1, 1.4]] # matrice avec les scores de base pour chaque pos (le centre ++, les coins +, les arretes -)
         evaluation = 0
         main_mat = np.zeros((3,3))
 
@@ -278,20 +284,22 @@ class Morpion:
                     if grille_active == -1 :
                         for h in range(3):
                             for l in range(3):
+                                #on verfie si le coup est possible
                                 if self.verif_win(main_mat[h][l]) == 0 :
                                     if main_mat[h][l][y][x] == 0:
                                         #on joue le coup
                                         main_mat[h][l][y][x] = -1
+                                        #on retourne dans notre fonction en changeant de joueur pour tester en profondeur quelle coup sera le mieux
                                         eval = self.minimax(main_mat, (y, x), profondeur - 1, alpha, beta, False)
                                         #on annule ensuite le coup
                                         main_mat[h][l][y][x] = 0
 
-                                        monstre = eval[0]
-                                        if monstre > max_eval:
-                                            max_eval = monstre
+                                        eval_act = eval[0]
+                                        if eval_act > max_eval:
+                                            max_eval = eval_act
                                             #on sauvegarde le coup qui a permis "d'ameliorer le score"
                                             meilleur_coup = (h, l, y, x)
-                                        alpha = max(alpha, monstre)
+                                        alpha = max(alpha, eval_act)
 
                                         # Coupure alpha-bêta
                                         if beta <= alpha:
@@ -301,6 +309,7 @@ class Morpion:
                                         break
 
                     else :
+                        #c'est la meme chose juste on ne parcours pas toute les grilles
                             if main_mat[grille_active[0]][grille_active[1]][y][x] == 0 :
                                 main_mat[grille_active[0]][grille_active[1]][y][x] = -1
                                 eval = self.minimax(main_mat,(y,x), profondeur-1, alpha, beta,False)
@@ -318,7 +327,7 @@ class Morpion:
 
             return {0:max_eval,1:meilleur_coup}
 
-        #on refait quasi la meme chose pour le joueur minimisant
+        #on refait quasi la meme chose pour le joueur minimisant, en changeant certaine valeur car on est au joueur minimisant maintenant
         else :
             min_eval = math.inf
             for y in range(3):
@@ -339,7 +348,7 @@ class Morpion:
                                         beta = min(beta, monstre)
                                         if beta <= alpha:
                                             break
-                                        # Ajout d'un `break` externe à la boucle `l`
+
                                     if beta <= alpha:
                                         break
 
@@ -368,11 +377,10 @@ class Morpion:
         pygame.mixer.music.load("musiques/PVE.mp3")
         pygame.mixer.music.play(-1)
 
-
-
-        j = 1
+        j = 1 #c'est le joueur qui commence 1 pour le joueur et -1 pour l'ia
         prochain_coup = -1
         while not self.fin:
+            #quasi la meme chose que sans ia comme c'est le joueur qui joue
             if j == 1:
 
                 cpt = 0
@@ -433,6 +441,8 @@ class Morpion:
                         continue
 
             else :
+                #tour de l'ia
+                #on calcule le nombre de coup possible pour prendre la bonne profondeur car sinon quand il y'a egalité ca fera une erreur comme il ne pourra plus jouer aucun coup
                 nb_coup_possible = 0
                 for x in range(3):
                     for y in range(3):
@@ -441,13 +451,14 @@ class Morpion:
                                 for y1 in range(3):
                                     if self.mat[x][y][x1][y1]==0:
                                         nb_coup_possible += 1
+                #on calcule le meilleur coup avec minimax
                 coup_ia = self.minimax(self.mat,prochain_coup,min(4 ,nb_coup_possible),-math.inf,math.inf,True)
                 self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = -1
 
                 centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
                 self.g.afficherImage((centre[0] - 67.5) + 45 * coup_ia[1][3] + 2.5, (centre[1] - 67.5) + 45 * coup_ia[1][2] + 2.5, "rond_croix/croix.png")
-                j = 1
 
+                #la suite ressemble beaucoup au cas avec un joueur normal
                 if prochain_coup != -1:
                     self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "black")
                 else:
@@ -481,10 +492,12 @@ class Morpion:
                 elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                     self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
                 self.g.actualiser()
+
+                j = 1 #on repasse au joueur 1
+
         pygame.mixer.music.stop()
 
     def start_poke(self,aff):
-        self.afficher_poke()
         self.afficher_morpion()
         pygame.mixer.init()
         pygame.mixer.music.load("musiques/Morpion_msc.mp3")
@@ -495,11 +508,13 @@ class Morpion:
 
         #le joueur qui commence
         j = 1
+        #tout ca nous permet de gerer la surbrillance du pokemon choisi
         rectangle = self.g.dessinerRectangle(10000,10000,43,43,"red")
         rectangle1 = self.g.dessinerRectangle(10000,10000,43,43,"blue")
         stat = self.g.afficherTexte("",600,550,"black")
-        self.g.placerAuDessous(rectangle1)
-        self.g.placerAuDessous(rectangle)
+
+        self.afficher_poke()
+
 
         prochain_coup = -1
         poke_choisi = None
@@ -520,6 +535,8 @@ class Morpion:
 
             if clic :
                 try:
+                    #ce "a" permet de resoudre un bug qui arrivait apres un combat car un objet graphique ce supprimer mal
+                    #il y'avais un objet tkinter mais pas tkiteasy donc j'essaie de recuperer l'objet tkiteasy et si ca ne marche pas je supprime l'objet tkinter en trop
                     a = self.g.find_overlapping(clic.x, clic.y,clic.x, clic.y)
                     try :
                         objet = self.g.recupererObjet(clic.x, clic.y)
@@ -527,7 +544,9 @@ class Morpion:
                         a = self.g.find_overlapping(clic.x, clic.y, clic.x, clic.y)
                         self.g.delete(a[-1])
                         objet = self.g.recupererObjet(clic.x, clic.y)
+                    #je regarde si le pokemon cliqué est jouable ou non
                     if objet in self.asso_poke and self.asso_poke[objet]["dispo"] and self.asso_poke[objet]["joueur"] == j:
+                        #la je m'occupe de l'affichage quand je selectionne un pokemon
                         if j == 1 :
                             obj = rectangle
                         else :
@@ -543,11 +562,15 @@ class Morpion:
                             and self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == 0
                             and self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] != j) :
 
+                        #le jeu commence si j'ai bien selectionné un pokemon valide et si j'ai cliqué sur un carré libre
+
                         self.g.changerTexte(stat, "")
                         if prochain_coup ==-1 or prochain_coup == (self.dic_asso[objet][0],self.dic_asso[objet][1]) :
+                            #je verifie si je joue simplement sur une case vide ou si j'engage un combat
                             if self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] == -j :
-
+                                #je retrouve le pokemon sur lequel j'ai cliqué avce ces co dans la matrice
                                 poke_selec = self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])]
+                                #gere l'affichage des combats ou non
                                 if aff==1:
 
                                     resultat = self.combat.combat(self.asso_poke[poke_choisi]["name"],self.asso_poke[poke_selec]["name"])
@@ -559,15 +582,16 @@ class Morpion:
                                                                   self.asso_poke[poke_selec]["name"])
 
 
-
                                 winner = self.name_to_poke[resultat[0]]
                                 loser = self.name_to_poke[resultat[1]]
 
                                 self.asso_poke[winner]["dispo"] = False
                                 self.asso_poke[loser]["dispo"] = True
-
+                                #je met a jour toutes les matrices
                                 self.mat_poke[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = self.asso_poke[winner]["joueur"]
+
+                                #j'affiche un rond ou une croix
 
                                 self.g.dessinerRectangle(objet.x,objet.y,44,44,"black")
 
@@ -577,24 +601,34 @@ class Morpion:
                                 else:
                                     self.g.afficherImage(objet.x + 2.5, objet.y + 2.5, "rond_croix/croix.png")
 
+                                self.g.supprimer(winner)
+
+                                #un bug est survenu a la derniere minute dans certain cas tres rare je n'ai pas peu trouver la cause par manque de
+                                #temp donc j'ai eviter le probleme avec un try except, ce qui fonctionne parfaitement
+
                                 try:
                                     self.g.supprimer(winner)
                                 except:
                                     continue
+                                #je remet le perdant dans son deck
                                 self.g.deplacer(loser, self.asso_poke[loser]["co"][0] - loser.x,self.asso_poke[loser]["co"][1] - loser.y)
 
                             else :
+                                #maintenant le cas ou on clique sur une case vide
                                 self.g.deplacer(poke_choisi, objet.x - poke_choisi.x + 1,objet.y - poke_choisi.y + 1)
                                 if j == 1 :
                                     col = "red"
                                 else :
                                     col = "blue"
+                                #j'affiche un rectangle de la couleur du joueur pour bien distinguer les pokemon joué par chaque joueur
                                 self.g.dessinerRectangle(poke_choisi.x ,poke_choisi.y , 44,44,col)
 
                                 self.g.placerAuDessus(poke_choisi)
+                                #je met a jour les dico et les matrices
                                 self.asso_poke[poke_choisi]["dispo"] = False
                                 self.asso_poke[poke_choisi]["co_mat"] = (self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])
                                 self.co_to_poke[(self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])] = poke_choisi
+                                #le dic_asso me permet de revenir au co de la mat c'est le meme que pour les carré vides
                                 self.dic_asso[poke_choisi] = (self.dic_asso[objet][0],self.dic_asso[objet][1],self.dic_asso[objet][2],self.dic_asso[objet][3])
                                 self.mat[self.dic_asso[objet][0]][self.dic_asso[objet][1]][self.dic_asso[objet][2]][self.dic_asso[objet][3]] = j
 
@@ -604,6 +638,8 @@ class Morpion:
                                 obj = rectangle1
                             self.g.deplacer(obj, 10000, 10000)
                             j = -j
+
+                            #la suite est la meme que en jeu normal
 
                             #juste pour l'effet de surbrillance
                             if prochain_coup != -1:
@@ -643,6 +679,8 @@ class Morpion:
 
         pygame.mixer.music.stop()
 
+#la suite est utile pour le choix du pokemon que l'ia vas jouer
+
     def a_un_avantage(self, pokemon, adversaire_types):
 
         types_pokemon = [self.df.loc[pokemon, "Type 1"], self.df.loc[pokemon, "Type 2"]]
@@ -654,15 +692,16 @@ class Morpion:
         return False
 
     def est_suffisant(self, pokemon, adversaire_stats):
-
+        #cette fonction permet de voir si un pokemon est suffisant pour battre son adversaire
         stats_pokemon = self.df.loc[pokemon]
+        #pour cela on regarde la diference entre les stats de l'adversaire et les notres
         attaque_effective = max(
             stats_pokemon["Attack"] - adversaire_stats["Defense"],
             stats_pokemon["Sp. Atk"] - adversaire_stats["Sp. Def"])
-
+        #cette maniere de return renvoie un booleen si les conditions sont verifiés
         return attaque_effective > 0 and stats_pokemon["Speed"] >= adversaire_stats["Speed"]
 
-    def choisir_pokemon(self, adversaire, ma_liste):
+    def choisir_pokemon(self, adversaire, ma_liste):#principale fonction
 
         # Récupérer les stats de l'adversaire
         adversaire_stats = self.df.loc[adversaire]
@@ -677,7 +716,7 @@ class Morpion:
         # Filtrer les Pokémon capables de gagner
         pokemon_suffisants = [poke for poke in pokemon_consideres if self.est_suffisant(poke, adversaire_stats)]
 
-        # Si aucun Pokémon ne peut gagner, retourner le meilleur et soit il gagnera soit il montera de niveau tout benef
+        # Si aucun Pokémon ne peut gagner, retourner le meilleur et soit il gagnera soit il montera de niveau
         if not pokemon_suffisants:
             ma_liste.sort(key=lambda p: (self.df.loc[p, "Attack"] + self.df.loc[p, "Sp. Atk"], self.df.loc[p, "Speed"]))
             return ma_liste[-1]
@@ -686,6 +725,7 @@ class Morpion:
         pokemon_suffisants.sort(key=lambda p: (self.df.loc[p, "Attack"] + self.df.loc[p, "Sp. Atk"],self.df.loc[p, "Speed"]))
         return pokemon_suffisants[0]  # Le plus faible capable de gagner
 
+    #permet de voir si un coup bloque l'adversaire
     def coup_bloquant(self,mat,pos,j):
         mat[pos[0]][pos[1]] = -j
         if self.verif_win(mat) == j:
@@ -696,6 +736,7 @@ class Morpion:
             return False
 
     def minimax_poke(self, main_mat, grille_active, profondeur, alpha, beta, joueur_max, mat_poke):
+        #quasiment pareil que le minimax normal, mais l'ia peut jouer egalement sur les pos adverses si elles sont dispo
 
         meilleur_coup = -1
 
@@ -718,8 +759,10 @@ class Morpion:
                         for h in range(3):
                             for l in range(3):
                                 if self.verif_win(main_mat[h][l]) == 0:
+                                    #on verifie les case joueables
                                     if mat_poke[h][l][y][x] == 0 and main_mat[h][l][y][x] != -1:
                                         coup_pre = main_mat[h][l][y][x]
+                                        #on part du principe que l'ia gagnera toujours ces combats si elle choisi bien ces pokemons
                                         main_mat[h][l][y][x] = -1
                                         mat_poke[h][l][y][x] = -1
                                         eval = self.minimax_poke(main_mat, (y, x), profondeur - 1, alpha, beta, False, mat_poke)
@@ -807,7 +850,6 @@ class Morpion:
             return {0: min_eval, 1: meilleur_coup}
 
     def start_poke_ia(self,aff):
-        self.afficher_poke()
         self.afficher_morpion()
         pygame.mixer.init()
         pygame.mixer.music.load("musiques/PVE.mp3")
@@ -819,8 +861,8 @@ class Morpion:
         j = 1
         rectangle = self.g.dessinerRectangle(10000,10000,43,43,"red")
         rectangle1 = self.g.dessinerRectangle(10000,10000,43,43,"blue")
-        self.g.placerAuDessous(rectangle1)
-        self.g.placerAuDessous(rectangle)
+        self.afficher_poke()
+
         stat = self.g.afficherTexte("", 600,550, "black")
 
         prochain_coup = -1
@@ -838,6 +880,7 @@ class Morpion:
                 return 0
                 self.fin = True
 
+            #La partie du joueur est la meme que sans ia
             if j == 1 :
                 try:
                     clic = self.g.recupererClic()
@@ -963,6 +1006,7 @@ class Morpion:
                 self.g.actualiser()
 
             else :
+                #maintenant au tour de l'ia qui reprend des aspect de l'ia sans pokemon
                 nb_coup_possible = 0
                 for x in range(3):
                     for y in range(3):
@@ -971,11 +1015,15 @@ class Morpion:
                                 for y1 in range(3):
                                     if self.mat[x][y][x1][y1] == 0:
                                         nb_coup_possible += 1
+
                 coup_ia = self.minimax_poke(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf, True,self.mat_poke)
 
                 if self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] == 1 :
+                    #si l'ia joue sur un poke adversaire c'est la meme chose que quand un joueur lance un combat
+
                     a = self.co_to_poke[(coup_ia[1][0],coup_ia[1][1],coup_ia[1][2],coup_ia[1][3])]
                     adversaire = self.asso_poke[a]["name"]
+                    #l'ia choisi son pokemon ici
                     poke_choisi = self.choisir_pokemon(adversaire,self.deck[1])
 
                     if aff==1:
@@ -1046,7 +1094,9 @@ class Morpion:
                         self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
 
                 else :
+                    #si l'ia joue un carré vide alors elle vas prendre un pokemon moyen par defaut et son meilleur pokemon si elle empeche le joueur de gagner
                     deck = []
+                    #on trie les pokemon jouable
                     for i in self.asso_poke :
                         if self.asso_poke[i]["dispo"] and self.asso_poke[i]["joueur"] == -1 :
                             deck.append(self.asso_poke[i]["name"])
@@ -1054,7 +1104,7 @@ class Morpion:
                     sorted_df = filtered_df.sort_values(by=["Attack", "HP", "Sp. Atk", "Speed"], ascending=False)
                     deck_trie = sorted_df.index.tolist()
 
-
+                    #choix du pokemon
                     if self.coup_bloquant( self.mat[coup_ia[1][0]][coup_ia[1][1]],(coup_ia[1][2],coup_ia[1][3]), -1):
                         poke_choisi = deck_trie[-1]
                     else :
@@ -1062,6 +1112,8 @@ class Morpion:
                         poke_choisi = deck_trie[milieu]
 
                     poke_choisi = self.name_to_poke[poke_choisi]
+
+                    #le reste est la meme chose que pour le joueur
 
                     centre = (450 + coup_ia[1][1] * 150, 150 + coup_ia[1][0] * 150)
                     self.g.deplacer(poke_choisi, (centre[0] - 67.5) + 45 * coup_ia[1][3] - poke_choisi.x + 1, (centre[1] - 67.5) + 45 * coup_ia[1][2] - poke_choisi.y + 1)
@@ -1116,6 +1168,9 @@ class Morpion:
                 j = 1
         pygame.mixer.music.stop()
 
+
+    #Cette fonction ne marche pas a tout les coups il lui arrive de buger cependant je n'ai pas su trouver exactement le moment qui bloquait par manque de temp
+    #Elle fonctionne quand meme la plus part du temp
     def start_poke_ia_vs_ia(self,aff):
         self.afficher_morpion()
         self.afficher_poke()
@@ -1123,7 +1178,6 @@ class Morpion:
         pygame.mixer.music.load("musiques/IA_vs_IA.mp3")
         pygame.mixer.music.play(-1)
 
-        # le joueur qui commence
         j = 1
 
         prochain_coup = -1
@@ -1150,12 +1204,18 @@ class Morpion:
                             for y1 in range(3):
                                 if self.mat[x][y][x1][y1] == 0:
                                     nb_coup_possible += 1
+
+            #joueur maximisant ou minimisant
             if j == 1 :
                 joueur = False
             else:
                 joueur = True
 
+            #Le bug est ici le minimax renvoie des fois meilleur coup = -1 ,cela veut dire que dans le minimax elle n'actualise jamais le meilleur coup cependant je n'ai pas sur trouver pourquoi
+
             coup_ia = self.minimax_poke(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf,joueur, self.mat_poke)
+
+            #le reste reviens au meme que les autres fonction
 
             if self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] == -j:
                 a = self.co_to_poke[(coup_ia[1][0], coup_ia[1][1], coup_ia[1][2], coup_ia[1][3])]
@@ -1299,7 +1359,11 @@ class Morpion:
             self.g.actualiser()
             j = -j
 
+
+    #cette fonction renverra toujours le meme resultat ce qui est normal car les deux ia ont toujours le meme raisonement, il est possible de leur faire faire d'autre strategie
+    #par exemple de ne prendre encompte que les petits morpion mais ce n'est pas tres interressant car elles sont beaucoup moins efficace.
     def start_ia_vs_ia(self):
+        #cela marche exactement comme les autres fonctions
         self.afficher_morpion()
         pygame.mixer.init()
         pygame.mixer.music.load("musiques/IA_vs_IA.mp3")
@@ -1334,7 +1398,7 @@ class Morpion:
             else :
                 joueur = True
 
-
+            #ici il n'y a aucun probleme
             coup_ia = self.minimax(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf, joueur)
             self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] = j
 
@@ -1379,15 +1443,4 @@ class Morpion:
             elif self.main_mat[prochain_coup[0]][prochain_coup[1]] == 0:
                 self.g.changerCouleur(self.dico_surbrillance[prochain_coup], "green")
             self.g.actualiser()
-
-
-
-
-#g = ouvrirFenetre(1200,600)
-#jeu = Morpion(g)
-# jeu.start_ia()
-# jeu.start()
-# jeu.start_poke_ia()
-# jeu.start_poke()
-# jeu.start_poke_ia_vs_ia()
-# jeu.start_ia_vs_ia()
+        self.g.attendreClic()
