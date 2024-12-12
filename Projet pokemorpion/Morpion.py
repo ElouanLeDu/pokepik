@@ -1137,8 +1137,9 @@ class Morpion:
                             x != 0 for y in self.mat[ligne][colonne] for x in y):
                         cpt += 1
             if cpt == 9:
-                return 0
                 self.fin = True
+                return 0
+
 
             #debut jeu
 
