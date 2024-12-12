@@ -50,7 +50,6 @@ class Pokemorpion ():
         # Ajout des boutons pour configurer le mode de combat
         def set_choice(choice):
             self.choice_var = choice  # Mise à jour de la variable
-            print(f"Choice set to: {self.choice_var}")
 
         # Création des boutons Tkinter
         self.fight_with_display_button = tk.Button(

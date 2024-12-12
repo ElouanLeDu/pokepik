@@ -1214,8 +1214,22 @@ class Morpion:
 
             #Le bug est ici le minimax renvoie des fois meilleur coup = -1 ,cela veut dire que dans le minimax elle n'actualise jamais le meilleur coup cependant je n'ai pas sur trouver pourquoi
 
-            coup_ia = self.minimax_poke(self.mat, prochain_coup, min(4, nb_coup_possible), -math.inf, math.inf,joueur, self.mat_poke)
-
+            coup_ia = self.minimax_poke(self.mat, prochain_coup, min(3, nb_coup_possible), -math.inf, math.inf,joueur, self.mat_poke)
+            
+            if coup_ia[1] == -1 :
+                if prochain_coup != -1 :
+                    for p in range(3):
+                        for o in range (3):
+                            if self.mat[prochain_coup[0]][prochain_coup[1]][p][o] == 0 :
+                                coup_ia[1] = (prochain_coup[0],prochain_coup[1],p,o)
+                else :
+                    for m in range(3):
+                        for l in range(3):
+                            for p in range(3):
+                                for o in range(3):
+                                    if self.mat[m][l][p][o] == 0 :
+                                        coup_ia[1] = (m,l,p,o)
+            
             #le reste reviens au meme que les autres fonction
 
             if self.mat[coup_ia[1][0]][coup_ia[1][1]][coup_ia[1][2]][coup_ia[1][3]] == -j:
