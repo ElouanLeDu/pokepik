@@ -103,7 +103,7 @@ class distribution():
         image_1 = self.g.afficherImage(200, 300, image_1_path, 200, 200)
         image_2 = self.g.afficherImage(750, 300, image_2_path, 200, 200)
         # show the image of 2 pokemons
-        total_1 = self.g.afficherTexte(f'Total: {self.pk.loc[ch[0], 'Total']}', 300, 250, 'black')
+        total_1 = self.g.afficherTexte(f'Total: {self.pk.loc[ch[0],'Total']}', 300, 250, 'black')
         total_2 = self.g.afficherTexte(f'Total: {self.pk.loc[ch[1], 'Total']}', 900, 250, 'black')
         # show the Total of 2 pokemons
         while time_now <= time_start + 10: # 10 seconds to choose
