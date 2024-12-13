@@ -6,7 +6,7 @@ import pandas as pds
 from random import choice
 import pygame
 
-class Distri () :
+class distribution () :
 
     def __init__(self, window,df):
         self.pk = df
@@ -21,13 +21,8 @@ class Distri () :
         files = os.listdir('pokemon_images')  # list of picture's name
         if pokemon_name in files:
             image_path = os.path.join('pokemon_images', pokemon_name)  # charge image
-            try:
-                # print(f'already found {pokemon_name}')
-                return image_path
-            except Exception as e:
-                print(f"impossible charging {pokemon_name}，error：{e}")
-        else:
-            print(f"can't find {pokemon_name} in pokemon_images ")
+            return image_path
+
 
     def distribute_random(self):  # random distribute
         pygame.mixer.init()
@@ -56,14 +51,13 @@ class Distri () :
         self.player2 = pds.concat([pl2_pool_1, pl2_pool_2, pl2_pool_3, pl2_pool_4])
         self.player1 = list(self.player1.index)
         self.player2 = list(self.player2.index)
-        # print(self.player_1)
+
         l1 = []
         l2 = []
         for i in range(60):
             l1.append(self.get_pokemon_image(self.player1[i]))
             l2.append(self.get_pokemon_image(self.player2[i]))
-            # print(i)
-            # print(l1,l2)
+
         for n in range(30):
 
             self.g.afficherImage(10, 40 * n, l1[n], 40, 40)
@@ -88,12 +82,12 @@ class Distri () :
     def choose(self, pool, pl1, pl2, end_1_x, end_1_y, end_2_x, end_2_y):
         time_start = time.time()
         time_now = time.time()
-        print(pool.shape[0])
+
         ch = pool.sample(n=2, random_state=42)
-        # print('ch:',ch)
+
         pool.drop(ch.index, inplace=True)
         ch = list(ch.index)
-        # print(pool.shape[0])
+
         image_1_path = self.get_pokemon_image(ch[0])
         image_2_path = self.get_pokemon_image(ch[1])
         image_1 = self.g.afficherImage(200, 300, image_1_path, 200, 200)
@@ -113,7 +107,7 @@ class Distri () :
                     self.g.supprimer(total_1)
                     self.g.supprimer(total_2)
                     ch = None
-                    for i in range(10):
+                    for i in range(11):
                         self.g.supprimer(image_1)
                         self.g.supprimer(image_2)
                         image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10),
@@ -131,7 +125,7 @@ class Distri () :
                     pl1.append(ch[0])
                     pl2.append(ch[1])
                     ch = None
-                    for i in range(10):
+                    for i in range(11):
                         self.g.supprimer(image_1)
                         self.g.supprimer(image_2)
                         image_1 = self.g.afficherImage(200 - ((200 - end_2_x) * i / 10),
@@ -144,14 +138,14 @@ class Distri () :
                         self.g.actualiser()
                     break
         if ch != None:
-            print('pl1:', self.player1, 'pl2:', self.player2)
+
             auto = choice([1, 2])
             if auto == 1:
                 pl1.append(ch[0])
                 pl2.append(ch[1])
                 self.g.supprimer(total_1)
                 self.g.supprimer(total_2)
-                for i in range(10):
+                for i in range(11):
                     self.g.supprimer(image_1)
                     self.g.supprimer(image_2)
                     image_1 = self.g.afficherImage(200 - ((200 - end_1_x) * i / 10), 300 - ((300 - end_1_y) * i / 10),
@@ -165,7 +159,7 @@ class Distri () :
                 pl2.append(ch[0])
                 self.g.supprimer(total_1)
                 self.g.supprimer(total_2)
-                for i in range(10):
+                for i in range(11):
                     self.g.supprimer(image_1)
                     self.g.supprimer(image_2)
                     image_1 = self.g.afficherImage(250 - ((250 - end_2_x) * i / 10), 300 - ((300 - end_2_y) * i / 10),
@@ -174,7 +168,7 @@ class Distri () :
                                                    image_2_path, 200 - i * 15, 200 - i * 15)
                     time.sleep(0.0001)
                     self.g.actualiser()
-        print('pl1:', self.player1, 'pl2:', self.player2)
+
 
     def distribute_draft(self):  # draft
         pygame.mixer.init()

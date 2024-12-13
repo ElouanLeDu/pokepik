@@ -5,7 +5,7 @@ from tkinter import messagebox
 import pygame
 from Morpion import Morpion
 from combat import combat_de_pokemon
-from distribute import Distri
+from distribute import distribution
 
 
 
@@ -23,7 +23,7 @@ class Pokemorpion ():
         self.deck2 = []
         self.jeu=Morpion(self.g,self.df,self.deck1,self.deck2)
         self.fight=combat_de_pokemon(self.g,self.df)
-        self.distri=Distri(self.g,self.df)
+        self.distri=distribution(self.g,self.df)
         self.poke1 = ""
         self.poke2 = ""
         self.choice_var = "Fight with display"
